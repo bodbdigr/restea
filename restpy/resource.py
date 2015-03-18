@@ -30,6 +30,15 @@ class Resource(object):
         self.request = request
         self.formatter = formatter
 
+    def _iden_required(self, method_name):
+        '''
+        Checks if given method requires iden
+
+        :param method_name: string -- name of method on a resrouce
+        :returns: bool - boolean value of whatever iden needed or not
+        '''
+        return method_name not in ('list', 'create')
+
     def _apply_decorators(self, method):
         '''
         Returns method decorated with decorators specified in self.decorators
@@ -67,6 +76,16 @@ class Resource(object):
 
         if isinstance(method_name, tuple):
             method_name = method_name[has_iden]
+
+        if not has_iden and self._iden_required(method_name):
+            raise errors.BadRequestError(
+                'Given method requires iden'
+            )
+
+        if has_iden and not self._iden_required(method_name):
+            raise errors.BadRequestError(
+                'Given method shouldn\'t have iden'
+            )
 
         return method_name
 
