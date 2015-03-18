@@ -21,9 +21,17 @@ sites = [
 ]
 
 
+def add_dummy_data(func):
+    def wrapper(*args, **kwargs):
+        res = func(*args, **kwargs)
+        if isinstance(res, dict):
+            res['dummy_key'] = 'dummy value'
+        return res
+    return wrapper
+
+
 class SiteResource(Resource):
-    # TODO: To be implemented
-    #decorators = [session_required]
+    decorators = [add_dummy_data]
 
     #fields = dict(
     #    id=fields.Integer(required=True),

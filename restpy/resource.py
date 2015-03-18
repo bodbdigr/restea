@@ -30,6 +30,20 @@ class Resource(object):
         self.request = request
         self.formatter = formatter
 
+    def _apply_decorators(self, method):
+        '''
+        Returns method decorated with decorators specified in self.decorators
+        :param method: -- resource method
+        :returns: method derocated
+        '''
+        if not hasattr(self, 'decorators'):
+            return method
+
+        for decorator in self.decorators:
+            method = decorator(method)
+
+        return method
+
     def _get_method_name(self, has_iden):
         '''
         Return resource object based on the HTTP method
@@ -120,6 +134,7 @@ class Resource(object):
 
         method_name = self._get_method_name(has_iden=bool(args or kwargs))
         method = self._get_method(method_name)
+        method = self._apply_decorators(method)
 
         try:
             res = method(*args, **kwargs)
