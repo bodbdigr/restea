@@ -72,3 +72,44 @@ def test_get_method_name_method_override():
     )
     resource = Resource(req_mock, mock.Mock())
     assert 'edit' == resource._get_method_name(has_iden=True)
+
+
+def test_iden_required_positive():
+    resource = Resource(mock.Mock(), mock.Mock())
+    assert resource._iden_required('show')
+    assert resource._iden_required('edit')
+    assert resource._iden_required('delete')
+
+
+def test_iden_required_negative():
+    resource = Resource(mock.Mock(), mock.Mock())
+    nose.tools.assert_false(resource._iden_required('create'))
+    nose.tools.assert_false(resource._iden_required('list'))
+
+
+def test_apply_decorators():
+    resource = Resource(mock.Mock(), mock.Mock())
+    resource.create = mock.MagicMock(return_value={
+        'test1': 0,
+        'test2': 0
+    })
+
+    def dummy_decorator1(func):
+        def wrapper(*a, **kw):
+            res = func(*a, **kw)
+            res['test1'] = 'replacement #1'
+            return res
+        return wrapper
+
+    def dummy_decorator2(func):
+        def wrapper(*a, **kw):
+            res = func(*a, **kw)
+            res['test2'] = 'replacement #2'
+            return res
+        return wrapper
+
+    resource.decorators = [dummy_decorator1, dummy_decorator2]
+    resource.create = resource._apply_decorators(resource.create)
+
+    expected_values = {'test1': 'replacement #1', 'test2': 'replacement #2'}
+    assert resource.create() == expected_values
