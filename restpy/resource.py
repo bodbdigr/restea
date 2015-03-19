@@ -95,7 +95,10 @@ class Resource(object):
         Returns is self.fomatter refers to a valid formatter class object
         :returns: bool
         '''
-        return isinstance(self.formatter, formats.FormatterRegistry)
+        return (
+            isinstance(self.formatter, type) and
+            issubclass(self.formatter, formats.BaseFormatter)
+        )
 
     @property
     def _error_formatter(self):
