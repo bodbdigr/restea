@@ -249,3 +249,42 @@ def test_process_error_in_formatter_serialize_should_raise_server_error(
         errors.ServerError,
         resource.process,
     )
+
+
+@patch.object(Resource, 'process')
+def test_dispatch_valid(process_mock):
+    args = ('arg1', 'arg2')
+    kwargs = {'kw1': 'kw1', 'kw2': 'kw2'}
+    expected_result = '{"res": "response from process"}'
+    expected_content_type = 'content/type'
+
+    resource = Resource(
+        mock.Mock(),
+        mock.Mock(content_type=expected_content_type)
+    )
+
+    process_mock.return_value = expected_result
+    res, status, content_type = resource.dispatch(*args, **kwargs)
+
+    resource.process.assert_called_with(*args, **kwargs)
+    assert res == expected_result
+    assert status == 200
+    assert content_type == expected_content_type
+
+
+@patch.object(Resource, 'process')
+def test_dispatch_exception(process_mock):
+    resource = Resource(mock.Mock(), None)
+    resource.process.side_effect = errors.ServerError('Error!')
+
+    res, status, content_type = resource.dispatch()
+    assert res == '{"error": "Error!"}'
+    assert status == 503
+    assert content_type == 'application/json'
+
+    resource.process.side_effect = errors.BadRequestError('Wrong!', code=101)
+
+    res, status, content_type = resource.dispatch()
+    assert res == '{"code": 101, "error": "Wrong!"}'
+    assert status == 400
+    assert content_type == 'application/json'
