@@ -4,6 +4,7 @@ from flask import Flask
 from restpy import errors
 from restpy.resource import Resource
 from restpy.adapters.flaskwrap import FlaskResourceWrapper
+from restpy import fields
 
 
 app = Flask(__name__)
@@ -33,13 +34,11 @@ def add_dummy_data(func):
 class SiteResource(Resource):
     decorators = [add_dummy_data]
 
-    #fields = dict(
-    #    id=fields.Integer(required=True),
-    #    name=fields.String(max_length=50, required=True),
-    #    title=fields.String(max_length=150, default='title'),
-    #    rating=fields.Integer(range=(1,5)),
-    #    domain=fields.WebAddress(with_path=False),
-    #)
+    fields = fields.FieldSet(
+        id=fields.Integer(),
+        name=fields.String(max_length=50),
+        title=fields.String(max_length=150, default='title'),
+    )
 
     def list(self):
         return sites
@@ -51,7 +50,7 @@ class SiteResource(Resource):
             raise errors.NotFoundError('Site doesn\'t exist', code=10)
 
     def edit(self, iden):
-        return {'name': self.payload.get('name')}
+        return self.payload
 
 
 with app.app_context():

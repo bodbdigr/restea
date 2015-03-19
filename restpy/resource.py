@@ -1,5 +1,6 @@
 import restpy.errors as errors
 import restpy.formats as formats
+import restpy.fields as fields
 
 
 # TODO: Add fileds with validation
@@ -27,6 +28,9 @@ class Resource(object):
         formatter class implmementing serialization and unserialization of
         the data
         '''
+        if not hasattr(self, 'fields'):
+            self.fields = fields.FieldSet()
+
         self.request = request
         self.formatter = formatter
 
@@ -130,6 +134,29 @@ class Resource(object):
             )
         return getattr(self, method_name)
 
+    def _get_payload(self):
+        '''
+        Returns a validated and parsed payload data for request
+
+        :raises restpy.errors.BadRequestError: unparseable data
+        :raises restpy.errors.BadRequestError: validation of fields not passed
+        :returns: dict - validated data passed to resource
+        '''
+        if not self.request.data:
+            return {}
+
+        try:
+            payload_data = self.formatter.unserialize(self.request.data)
+        except formats.LoadError:
+            raise errors.BadRequestError(
+                'Fail to load the data'
+            )
+
+        try:
+            return self.fields.validate(payload_data)
+        except fields.FieldSet.Error, e:
+            raise errors.BadRequestError(e.message)
+
     def process(self, *args, **kwargs):
         '''
         Processes the payload and maps HTTP method to resource object methods
@@ -146,13 +173,7 @@ class Resource(object):
                 'Not recognizeable format'
             )
 
-        if self.request.data:
-            try:
-                self.payload = self.formatter.unserialize(self.request.data)
-            except formats.LoadError:
-                raise errors.BadRequestError(
-                    'Fail to load the data'
-                )
+        self.payload = self._get_payload()
 
         method_name = self._get_method_name(has_iden=bool(args or kwargs))
         method = self._get_method(method_name)

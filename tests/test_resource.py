@@ -5,6 +5,7 @@ from mock import patch
 
 from restpy import errors
 from restpy import formats
+from restpy import fields
 from restpy.resource import Resource
 
 
@@ -153,6 +154,63 @@ def test_get_method_with_not_existing_method():
     )
 
 
+def test_get_payload_should_pass_validation():
+    req_mock = mock.Mock(method='PUT', headers={}, data='data')
+    formatter_mock = mock.Mock()
+    formatter_mock.unserialize.return_value = {'data': 'should be overriden'}
+
+    resource = Resource(req_mock, formatter_mock)
+
+    expected_data = {'data': 'new value'}
+    resource.fields = mock.Mock()
+    resource.fields.validate.return_value = expected_data
+
+    assert resource._get_payload() == expected_data
+
+
+def test_get_payload_unexpected_data():
+    req_mock = mock.Mock(method='POST', headers={}, data='data')
+    formatter_mock = mock.Mock()
+    formatter_mock.unserialize.side_effect = formats.LoadError()
+    resource = Resource(req_mock, formatter_mock)
+
+    nose.tools.assert_raises(
+        errors.BadRequestError,
+        resource._get_payload,
+    )
+
+
+def test_get_payload_field_validation_fails():
+    req_mock = mock.Mock(method='POST', headers={}, data='data')
+    formatter_mock = mock.Mock()
+    formatter_mock.unserialize.return_value = {'test': 'data'}
+    resource = Resource(req_mock, formatter_mock)
+    resource.fields = mock.Mock()
+    resource.fields.validate.side_effect = fields.FieldSet.Error()
+
+    nose.tools.assert_raises(
+        errors.BadRequestError,
+        resource._get_payload,
+    )
+
+
+def test_get_payload_field_validation_no_data_empty_payload():
+    req_mock = mock.Mock(method='POST', headers={}, data=None)
+    formatter_mock = mock.Mock()
+    resource = Resource(req_mock, formatter_mock)
+
+    assert {} == resource._get_payload()
+
+
+def test_get_payload_validation_no_fields_case_empty_payload():
+    req_mock = mock.Mock(method='PUT', headers={}, data='data')
+    formatter_mock = mock.Mock()
+    resource = Resource(req_mock, formatter_mock)
+
+    formatter_mock.unserialize.return_value = {'data': 'test'}
+    assert {} == resource._get_payload()
+
+
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_valid(serialize_mock):
     mocked_value = 'mocked_value'
@@ -193,33 +251,6 @@ def test_process_wrong_formatter():
         errors.BadRequestError,
         resource.process,
     )
-
-
-@patch.object(formats.JsonFormat, 'unserialize')
-def test_process_unexisting_payload(unserialize_mock):
-    req_mock = mock.Mock(method='POST', headers={}, data='data')
-    resource = Resource(req_mock, formats.JsonFormat)
-
-    unserialize_mock.side_effect = formats.LoadError()
-    resource.create = mock.MagicMock(return_value='')
-
-    nose.tools.assert_raises(
-        errors.BadRequestError,
-        resource.process,
-    )
-
-
-@patch.object(formats.JsonFormat, 'unserialize')
-def test_process_valid_payload(unserialize_mock):
-    req_mock = mock.Mock(method='PUT', headers={}, data='{"test": 1}')
-    resource = Resource(req_mock, formats.JsonFormat)
-
-    expected_payload = {'test': 1}
-    unserialize_mock.return_value = expected_payload
-    resource.edit = mock.MagicMock(return_value='')
-    resource.process(iden=10)
-
-    assert resource.payload == expected_payload
 
 
 @patch.object(formats.JsonFormat, 'serialize')
