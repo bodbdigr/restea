@@ -189,6 +189,18 @@ def test_get_payload_unexpected_data():
     )
 
 
+def test_get_payload_not_mapable_payload():
+    resource, _, formatter_mock = create_resource_helper(
+        method='PUT', data='data'
+    )
+    formatter_mock.unserialize.return_value = ['item']
+
+    nose.tools.assert_raises(
+        errors.BadRequestError,
+        resource._get_payload,
+    )
+
+
 def test_get_payload_field_validation_fails():
     resource, _, formatter_mock = create_resource_helper(
         method='PUT', data='data'

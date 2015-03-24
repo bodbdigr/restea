@@ -29,7 +29,7 @@ def test_feild_set_field_names():
     assert fs.field_names == set(['field1', 'field2'])
 
 
-def test_feild_set_field_names():
+def test_feild_set_field_names_empty():
     fs, _, _ = create_field_set_helper(no_fields=True)
     assert fs.field_names == set()
 
@@ -61,6 +61,7 @@ def test_feild_set_validate_requred_fields_missing():
         fs.validate,
         {'field2': '2'}
     )
+
 
 def test_field_init():
     f = Field(setting1=1, setting2=2, required=True)

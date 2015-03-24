@@ -1,3 +1,4 @@
+import collections
 import restpy.errors as errors
 import restpy.formats as formats
 import restpy.fields as fields
@@ -139,6 +140,7 @@ class Resource(object):
         Returns a validated and parsed payload data for request
 
         :raises restpy.errors.BadRequestError: unparseable data
+        :raises restpy.errors.BadRequestError: payload is not mapable
         :raises restpy.errors.BadRequestError: validation of fields not passed
         :returns: dict - validated data passed to resource
         '''
@@ -150,6 +152,11 @@ class Resource(object):
         except formats.LoadError:
             raise errors.BadRequestError(
                 'Fail to load the data'
+            )
+
+        if not isinstance(payload_data, collections.Mapping):
+            raise errors.BadRequestError(
+                'Data should be key -> value structure'
             )
 
         try:
