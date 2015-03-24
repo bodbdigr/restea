@@ -1,6 +1,11 @@
 import mock
 import nose
-from restpy.fields import Field, FieldSet
+from restpy.fields import (
+    Field,
+    FieldSet,
+    Integer,
+    String,
+)
 
 
 def create_field_set_helper(no_fields=False):
@@ -132,3 +137,57 @@ def test_field_validate_raises_on_setting_validation():
         'value'
     )
     f._validate_field.assert_called_with('value')
+
+
+def test_integer_field_validate():
+    f = Integer()
+    assert f._validate_field(1000) == 1000
+
+
+def test_integer_field_validate_decimal():
+    f = Integer()
+    assert f._validate_field(10.10) == 10
+
+
+def test_integer_field_validate_numberic_str():
+    f = Integer()
+    assert f._validate_field('10') == 10
+
+
+def test_integer_field_validate_non_acceptable_value():
+    f = Integer()
+    for fail_val in ('should not work', None, '10.10'):
+        nose.tools.assert_raises(
+            FieldSet.Error,
+            f._validate_field,
+            fail_val
+        )
+
+
+def test_string_validate_max_length():
+    f = String()
+    f._validate_max_length('text', 4)
+
+
+def test_string_validate_max_length_fail():
+    f = String()
+    nose.tools.assert_raises(
+        FieldSet.Error,
+        f._validate_max_length,
+        'text1', 4
+    )
+
+
+def test_string_validate():
+    f = String()
+    assert f._validate_field('test') == 'test'
+
+
+def test_string_validate_not_acceptable_value():
+    f = String()
+    for fail_val in (10, None, list):
+        nose.tools.assert_raises(
+            FieldSet.Error,
+            f._validate_field,
+            None
+        )

@@ -88,7 +88,9 @@ class String(Field):
             raise FieldSet.Error(
                 'Field "{}" is longer than expected'.format(self._name)
             )
+        return field_value
 
     def _validate_field(self, value):
         if not isinstance(value, basestring):
             raise FieldSet.Error('Field "{}" not a string'.format(self._name))
+        return value
