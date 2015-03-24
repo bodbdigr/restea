@@ -14,19 +14,16 @@ class FieldSet(object):
             field.set_name(name)
             self.fields[name] = field
 
-    def __getitem__(self, key):
-        return self.fields[key]
-
     @property
     def field_names(self):
-        return self.fields.keys()
+        return set(self.fields.keys())
 
     @property
-    def required_filed_names(self):
-        return [
+    def required_field_names(self):
+        return set(
             name for name, field in self.fields.iteritems()
             if field.required
-        ]
+        )
 
     def validate(self, data):
         field_names = self.field_names
@@ -36,7 +33,7 @@ class FieldSet(object):
                 continue
             cleaned_data[name] = self.fields[name].validate(value)
 
-        for req_field in self.required_filed_names:
+        for req_field in self.required_field_names:
             if req_field not in cleaned_data:
                 raise self.Error('Field "{}" is missing'.format(req_field))
 
@@ -67,11 +64,13 @@ class Field(object):
         return getattr(self, validator_method_name)
 
     def validate(self, field_value):
-        self._validate_field(field_value)
+        res = self._validate_field(field_value)
 
         for setting_name, setting in self._settings.iteritems():
             validator_method = self._get_setting_validator(setting_name)
-            validator_method(setting_name, setting, field_value)
+            res = validator_method(setting, res)
+
+        return res
 
 
 class Integer(Field):

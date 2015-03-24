@@ -3,6 +3,60 @@ import nose
 from restpy.fields import Field, FieldSet
 
 
+def create_field_set_helper(no_fields=False):
+    if no_fields:
+        return FieldSet(), None, None
+
+    f1 = mock.Mock(spec=Field())
+    f2 = mock.Mock(spec=Field())
+    return FieldSet(field1=f1, field2=f2), f1, f2
+
+
+def test_field_set_init():
+    fs, f1, f2 = create_field_set_helper()
+    assert fs.fields == {'field1': f1, 'field2': f2}
+    f1.set_name.assert_called_with('field1')
+    f2.set_name.assert_called_with('field2')
+
+
+def test_feild_set_field_names():
+    fs, _, _ = create_field_set_helper()
+    assert fs.field_names == set(['field1', 'field2'])
+
+
+def test_feild_set_field_names():
+    fs, _, _ = create_field_set_helper(no_fields=True)
+    assert fs.field_names == set()
+
+
+def test_field_set_required_fields():
+    fs, f1, f2 = create_field_set_helper()
+    f1.required = True
+    f2.required = False
+    assert fs.required_field_names == set(['field1'])
+
+
+def test_field_set_validate():
+    fs, f1, f2 = create_field_set_helper()
+    f1.validate.return_value = 1
+    f2.validate.return_value = 2
+    res = fs.validate({'field1': '1', 'field2': '2', 'field3': 'wrong!'})
+
+    assert res == {'field1': 1, 'field2': 2}
+    f1.validate.assert_called_with('1')
+    f2.validate.assert_called_with('2')
+
+
+def test_feild_set_validate_requred_fields_missing():
+    fs, f1, _ = create_field_set_helper()
+    f1.requred = True
+
+    nose.tools.assert_raises(
+        FieldSet.Error,
+        fs.validate,
+        {'field2': '2'}
+    )
+
 def test_field_init():
     f = Field(setting1=1, setting2=2, required=True)
     assert f._name is None
@@ -41,13 +95,13 @@ def test_field_validate():
     f = Field(my_setting=1)
     f.set_name('test')
 
-    f._validate_field = mock.Mock()
-    f._validate_my_setting = mock.Mock()
+    f._validate_field = mock.Mock(return_value='value')
+    f._validate_my_setting = mock.Mock(return_value='value')
 
-    f.validate('value')
+    assert f.validate('value') == 'value'
 
     f._validate_field.assert_called_with('value')
-    f._validate_my_setting.assert_called_with('my_setting', 1, 'value')
+    f._validate_my_setting.assert_called_with(1, 'value')
 
 
 def test_field_validate_raises_on_field_validation():
