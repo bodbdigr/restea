@@ -156,6 +156,8 @@ class Resource(object):
             return self.fields.validate(payload_data)
         except fields.FieldSet.Error, e:
             raise errors.BadRequestError(e.message)
+        except fields.FieldSet.ConfigurationError, e:
+            raise errors.ServerError(e.message)
 
     def process(self, *args, **kwargs):
         '''

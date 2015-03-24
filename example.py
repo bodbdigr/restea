@@ -6,7 +6,6 @@ from restpy.resource import Resource
 from restpy.adapters.flaskwrap import FlaskResourceWrapper
 from restpy import fields
 
-
 app = Flask(__name__)
 
 # Dummy data for the Resource
@@ -35,9 +34,9 @@ class SiteResource(Resource):
     decorators = [add_dummy_data]
 
     fields = fields.FieldSet(
-        id=fields.Integer(),
-        name=fields.String(max_length=50),
-        title=fields.String(max_length=150, default='title'),
+        id=fields.Integer(required=True),
+        name=fields.String(max_length=50, required=True),
+        title=fields.String(max_length=150)
     )
 
     def list(self):

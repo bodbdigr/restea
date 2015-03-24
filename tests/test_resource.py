@@ -9,27 +9,37 @@ from restpy import fields
 from restpy.resource import Resource
 
 
+def create_resource_helper(
+    method='GET',
+    headers={},
+    data=None,
+    formatter=None
+):
+    request = mock.Mock(method=method, headers=headers, data=data)
+
+    if not formatter:
+        formatter = mock.Mock()
+
+    return Resource(request, formatter), request, formatter
+
+
 def test_get_method_name_list():
-    req_mock = mock.Mock(method='GET', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper()
     assert 'list' == resource._get_method_name(has_iden=False)
 
 
 def test_get_method_name_show():
-    req_mock = mock.Mock(method='GET', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper()
     assert 'show' == resource._get_method_name(has_iden=True)
 
 
 def test_get_method_name_edit():
-    req_mock = mock.Mock(method='PUT', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper(method='PUT')
     assert 'edit' == resource._get_method_name(has_iden=True)
 
 
 def test_get_method_name_edit_without_iden():
-    req_mock = mock.Mock(method='PUT', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper(method='PUT')
     nose.tools.assert_raises(
         errors.BadRequestError,
         resource._get_method_name,
@@ -38,14 +48,12 @@ def test_get_method_name_edit_without_iden():
 
 
 def test_get_method_name_create():
-    req_mock = mock.Mock(method='POST', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper(method='POST')
     assert 'create' == resource._get_method_name(has_iden=False)
 
 
 def test_get_method_name_create_with_id():
-    req_mock = mock.Mock(method='POST', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper(method='POST')
     nose.tools.assert_raises(
         errors.BadRequestError,
         resource._get_method_name,
@@ -54,14 +62,12 @@ def test_get_method_name_create_with_id():
 
 
 def test_get_method_name_delete():
-    req_mock = mock.Mock(method='DELETE', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper(method='DELETE')
     assert 'delete' == resource._get_method_name(has_iden=True)
 
 
 def test_get_method_name_unpecefied_method():
-    req_mock = mock.Mock(method='HEAD', headers={})
-    resource = Resource(req_mock, mock.Mock())
+    resource, _, _ = create_resource_helper(method='HEAD')
     nose.tools.assert_raises(
         errors.MethodNotAllowedError,
         resource._get_method_name,
@@ -70,29 +76,26 @@ def test_get_method_name_unpecefied_method():
 
 
 def test_get_method_name_method_override():
-    req_mock = mock.Mock(
-        method='POST',
-        headers={'HTTP_X_HTTP_METHOD_OVERRIDE': 'PUT'}
-    )
-    resource = Resource(req_mock, mock.Mock())
+    headers = {'HTTP_X_HTTP_METHOD_OVERRIDE': 'PUT'}
+    resource, _, _ = create_resource_helper(method='HEAD', headers=headers)
     assert 'edit' == resource._get_method_name(has_iden=True)
 
 
 def test_iden_required_positive():
-    resource = Resource(mock.Mock(), mock.Mock())
+    resource, _, _ = create_resource_helper()
     assert resource._iden_required('show')
     assert resource._iden_required('edit')
     assert resource._iden_required('delete')
 
 
 def test_iden_required_negative():
-    resource = Resource(mock.Mock(), mock.Mock())
+    resource, _, _ = create_resource_helper()
     nose.tools.assert_false(resource._iden_required('create'))
     nose.tools.assert_false(resource._iden_required('list'))
 
 
 def test_apply_decorators():
-    resource = Resource(mock.Mock(), mock.Mock())
+    resource, _, _ = create_resource_helper()
     resource.create = mock.MagicMock(return_value={
         'test1': 0,
         'test2': 0
@@ -120,33 +123,33 @@ def test_apply_decorators():
 
 
 def test_is_valid_decorator_positive():
-    resource = Resource(mock.Mock(), formats.JsonFormat)
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     assert resource._is_valid_formatter
 
 
 def test_is_valid_decorator_negative():
-    resource = Resource(mock.Mock(), None)
+    resource, _, _ = create_resource_helper(formatter=None)
     nose.tools.assert_false(resource._is_valid_formatter)
 
 
 def test_error_formatter_valid():
-    resource = Resource(mock.Mock(), formats.JsonFormat)
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     assert resource._error_formatter == formats.JsonFormat
 
 
 def test_error_formatter_with_unknown_formatter():
-    resource = Resource(mock.Mock(), None)
+    resource, _, _ = create_resource_helper(formatter=None)
     assert resource._error_formatter == formats.DEFAULT_FORMATTER
 
 
 def test_get_method_valid():
-    resource = Resource(mock.Mock(), mock.Mock())
+    resource, _, _ = create_resource_helper()
     resource.create = mock.Mock(return_value={})
     assert resource._get_method('create') == resource.create
 
 
 def test_get_method_with_not_existing_method():
-    resource = Resource(mock.Mock(), mock.Mock())
+    resource, _, _ = create_resource_helper()
     nose.tools.assert_raises(
         errors.BadRequestError,
         resource._get_method,
@@ -155,11 +158,10 @@ def test_get_method_with_not_existing_method():
 
 
 def test_get_payload_should_pass_validation():
-    req_mock = mock.Mock(method='PUT', headers={}, data='data')
-    formatter_mock = mock.Mock()
+    resource, _, formatter_mock = create_resource_helper(
+        method='PUT', data='data'
+    )
     formatter_mock.unserialize.return_value = {'data': 'should be overriden'}
-
-    resource = Resource(req_mock, formatter_mock)
 
     expected_data = {'data': 'new value'}
     resource.fields = mock.Mock()
@@ -169,10 +171,10 @@ def test_get_payload_should_pass_validation():
 
 
 def test_get_payload_unexpected_data():
-    req_mock = mock.Mock(method='POST', headers={}, data='data')
-    formatter_mock = mock.Mock()
+    resource, _, formatter_mock = create_resource_helper(
+        method='PUT', data='data'
+    )
     formatter_mock.unserialize.side_effect = formats.LoadError()
-    resource = Resource(req_mock, formatter_mock)
 
     nose.tools.assert_raises(
         errors.BadRequestError,
@@ -181,10 +183,11 @@ def test_get_payload_unexpected_data():
 
 
 def test_get_payload_field_validation_fails():
-    req_mock = mock.Mock(method='POST', headers={}, data='data')
-    formatter_mock = mock.Mock()
+    resource, _, formatter_mock = create_resource_helper(
+        method='PUT', data='data'
+    )
     formatter_mock.unserialize.return_value = {'test': 'data'}
-    resource = Resource(req_mock, formatter_mock)
+
     resource.fields = mock.Mock()
     resource.fields.validate.side_effect = fields.FieldSet.Error()
 
@@ -194,19 +197,31 @@ def test_get_payload_field_validation_fails():
     )
 
 
-def test_get_payload_field_validation_no_data_empty_payload():
-    req_mock = mock.Mock(method='POST', headers={}, data=None)
-    formatter_mock = mock.Mock()
-    resource = Resource(req_mock, formatter_mock)
+def test_get_payload_field_misconfigured_fields_fails():
+    resource, _, formatter_mock = create_resource_helper(
+        method='PUT', data='data'
+    )
+    formatter_mock.unserialize.return_value = {'test': 'data'}
+    resource.fields = mock.Mock()
 
+    conf_error = fields.FieldSet.ConfigurationError()
+    resource.fields.validate.side_effect = conf_error
+
+    nose.tools.assert_raises(
+        errors.ServerError,
+        resource._get_payload,
+    )
+
+
+def test_get_payload_field_validation_no_data_empty_payload():
+    resource, _, _ = create_resource_helper(method='POST')
     assert {} == resource._get_payload()
 
 
 def test_get_payload_validation_no_fields_case_empty_payload():
-    req_mock = mock.Mock(method='PUT', headers={}, data='data')
-    formatter_mock = mock.Mock()
-    resource = Resource(req_mock, formatter_mock)
-
+    resource, _, formatter_mock = create_resource_helper(
+        method='PUT', data='data'
+    )
     formatter_mock.unserialize.return_value = {'data': 'test'}
     assert {} == resource._get_payload()
 
@@ -216,9 +231,7 @@ def test_process_valid(serialize_mock):
     mocked_value = 'mocked_value'
     serialize_mock.return_value = mocked_value
 
-    req_mock = mock.Mock(method='GET', headers={}, data=None)
-    resource = Resource(req_mock, formats.JsonFormat)
-
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     resource.show = mock.Mock(return_value={})
     res = resource.process(iden=10)
 
@@ -227,9 +240,7 @@ def test_process_valid(serialize_mock):
 
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_valid_list(serialize_mock):
-    req_mock = mock.Mock(method='GET', headers={}, data=None)
-    resource = Resource(req_mock, formats.JsonFormat)
-
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
 
     serialize_mock.return_value = '[]'
     resource.list = mock.Mock(return_value=[])
@@ -243,8 +254,7 @@ def test_process_valid_list(serialize_mock):
 
 
 def test_process_wrong_formatter():
-    req_mock = mock.Mock(method='GET', headers={}, data=None)
-    resource = Resource(req_mock, None)
+    resource, _, _ = create_resource_helper(formatter=None)
     resource.list = mock.MagicMock(return_value='')
 
     nose.tools.assert_raises(
@@ -255,9 +265,7 @@ def test_process_wrong_formatter():
 
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_error_in_method_should_raise_server_error(serialize_mock):
-    req_mock = mock.Mock(method='GET', headers={}, data=None)
-    resource = Resource(req_mock, formats.JsonFormat)
-
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     resource.list = mock.MagicMock(side_effect=ValueError('I will raise'))
 
     nose.tools.assert_raises(
@@ -270,9 +278,7 @@ def test_process_error_in_method_should_raise_server_error(serialize_mock):
 def test_process_error_in_formatter_serialize_should_raise_server_error(
     serialize_mock
 ):
-    req_mock = mock.Mock(method='GET', headers={}, data=None)
-    resource = Resource(req_mock, formats.JsonFormat)
-
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     resource.list = mock.MagicMock(return_value='')
     serialize_mock.side_effect = formats.LoadError()
 
@@ -289,10 +295,8 @@ def test_dispatch_valid(process_mock):
     expected_result = '{"res": "response from process"}'
     expected_content_type = 'content/type'
 
-    resource = Resource(
-        mock.Mock(),
-        mock.Mock(content_type=expected_content_type)
-    )
+    formatter_mock = mock.Mock(content_type=expected_content_type)
+    resource, _, _ = create_resource_helper(formatter=formatter_mock)
 
     process_mock.return_value = expected_result
     res, status, content_type = resource.dispatch(*args, **kwargs)
@@ -305,7 +309,7 @@ def test_dispatch_valid(process_mock):
 
 @patch.object(Resource, 'process')
 def test_dispatch_exception(process_mock):
-    resource = Resource(mock.Mock(), None)
+    resource, _, _ = create_resource_helper()
     resource.process.side_effect = errors.ServerError('Error!')
 
     res, status, content_type = resource.dispatch()
