@@ -45,8 +45,8 @@ class FieldSet(object):
 
 class Field(object):
     def __init__(self, **settings):
-        self._name = None
         self.required = settings.pop('required', False)
+        self._name = None
         self._settings = settings
 
     def set_name(self, name):
@@ -55,7 +55,7 @@ class Field(object):
     def _validate_field(self, field_value):
         raise NotImplementedError
 
-    def _get_setting_validator(self, setting_name, setting, field_val):
+    def _get_setting_validator(self, setting_name):
         validator_method_name = '_validate_{}'.format(setting_name)
 
         if not hasattr(self, validator_method_name):
@@ -70,9 +70,7 @@ class Field(object):
         self._validate_field(field_value)
 
         for setting_name, setting in self._settings.iteritems():
-            validator_method = self._get_setting_validator(
-                setting_name, setting
-            )
+            validator_method = self._get_setting_validator(setting_name)
             validator_method(setting_name, setting, field_value)
 
 

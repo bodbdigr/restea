@@ -23,6 +23,13 @@ def create_resource_helper(
     return Resource(request, formatter), request, formatter
 
 
+def test_init():
+    resource, req_mock, formatter_mock = create_resource_helper()
+    assert resource.request == req_mock
+    assert resource.formatter == formatter_mock
+    assert isinstance(resource.fields, fields.FieldSet)
+
+
 def test_get_method_name_list():
     resource, _, _ = create_resource_helper()
     assert 'list' == resource._get_method_name(has_iden=False)
