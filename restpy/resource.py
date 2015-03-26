@@ -166,7 +166,6 @@ class Resource(object):
         except fields.FieldSet.ConfigurationError, e:
             raise errors.ServerError(e.message)
 
-
     def process(self, *args, **kwargs):
         '''
         Processes the payload and maps HTTP method to resource object methods

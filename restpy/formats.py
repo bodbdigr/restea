@@ -1,7 +1,4 @@
-import collections
-import urlparse
 import json
-import re
 
 
 _formatter_registry = {}

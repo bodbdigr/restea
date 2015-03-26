@@ -89,6 +89,7 @@ def test_field_validate_field_base_should_be_abstract():
         'test'
     )
 
+
 def test_field_get_settings_validator():
     f = Field()
     f._validate_my_setting = mock.Mock()
