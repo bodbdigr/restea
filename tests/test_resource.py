@@ -283,8 +283,9 @@ def test_process_wrong_formatter():
     )
 
 
-def test_process_method_raising_rest_error():
-    resource, _, _ = create_resource_helper(formatter=None)
+@patch.object(formats.JsonFormat, 'serialize')
+def test_process_method_raising_rest_error(serialize_mock):
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     resource.list = mock.Mock(side_effect=errors.RestError)
     nose.tools.assert_raises(
         errors.RestError,
