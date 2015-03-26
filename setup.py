@@ -2,8 +2,8 @@ from distutils.core import setup
 
 
 setup(
-    name='rest.py',
-    packages=['rest.py'],
+    name='restpy',
+    packages=['restpy'],
     version='0.1.0',
     description='Simple RESTful server toolkit',
     author='Walery Jadłowski',
