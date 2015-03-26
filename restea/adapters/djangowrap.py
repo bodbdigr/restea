@@ -1,8 +1,8 @@
-import restpy.formats as formats
+import resttea.formats as formats
 from django.http import HttpResponse
 from django.conf.urls import patterns, url
 
-from restpy.adapters.base import (
+from restea.adapters.base import (
     BaseResourceWrapper,
     BaseRequestWrapper,
 )
@@ -57,7 +57,7 @@ class DjangoResourceRouter(BaseResourceWrapper):
 
     def wrap_request(self, request, *args, **kwargs):
         '''
-        Prepares data and pass control to `restpy.Resource` object
+        Prepares data and pass control to `restea.Resource` object
 
         :returns: :class: `django.http.HttpResponse`
         '''

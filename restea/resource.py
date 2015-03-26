@@ -1,7 +1,7 @@
 import collections
-import restpy.errors as errors
-import restpy.formats as formats
-import restpy.fields as fields
+import restea.errors as errors
+import restea.formats as formats
+import restea.fields as fields
 
 
 # TODO: Add fileds with validation
@@ -22,10 +22,10 @@ class Resource(object):
 
     def __init__(self, request, formatter):
         '''
-        :param request: :class: `restpy.apapters.base.BaseRequestWrapper`
+        :param request: :class: `restea.apapters.base.BaseRequestWrapper`
         sublcass -- request wrapper object
 
-        :param formatter: :class: `restpy.formats.BaseFormatter` subclass --
+        :param formatter: :class: `restea.formats.BaseFormatter` subclass --
         formatter class implmementing serialization and unserialization of
         the data
         '''
@@ -109,9 +109,9 @@ class Resource(object):
     def _error_formatter(self):
         '''
         Formatter used in case of error, uses self.formatter with fallback to
-        `restpy.formats.DEFAULT_FORMATTER`
+        `restea.formats.DEFAULT_FORMATTER`
 
-        :returns: :class: subclass of `restpy.formats.BaseFormatter`
+        :returns: :class: subclass of `restea.formats.BaseFormatter`
         '''
         if self._is_valid_formatter:
             return self.formatter
@@ -139,9 +139,9 @@ class Resource(object):
         '''
         Returns a validated and parsed payload data for request
 
-        :raises restpy.errors.BadRequestError: unparseable data
-        :raises restpy.errors.BadRequestError: payload is not mapable
-        :raises restpy.errors.BadRequestError: validation of fields not passed
+        :raises restea.errors.BadRequestError: unparseable data
+        :raises restea.errors.BadRequestError: payload is not mapable
+        :raises restea.errors.BadRequestError: validation of fields not passed
         :returns: dict - validated data passed to resource
         '''
         if not self.request.data:
@@ -171,8 +171,8 @@ class Resource(object):
         Processes the payload and maps HTTP method to resource object methods
         and calls the method
 
-        :raises restpy.errors.BadRequestError: wrong self.formatter type
-        :raises restpy.errors.ServerError: Some unhandled exception in
+        :raises restea.errors.BadRequestError: wrong self.formatter type
+        :raises restea.errors.ServerError: Some unhandled exception in
         resrouce method implementation or formatter serialization error
 
         :returns: string -- serialized data to be returned to client

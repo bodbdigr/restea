@@ -1,3 +1,3 @@
 test:
 		flake8 .
-		nosetests --with-coverage --cover-package=restpy ./tests/
+		nosetests --with-coverage --cover-package=restea ./tests/

@@ -1,6 +1,6 @@
 class FieldSet(object):
     '''
-    FieldSet is a container for :class: `restpy.fields.Field`. It registers
+    FieldSet is a container for :class: `restea.fields.Field`. It registers
     fields and also abstracts out validation.
     '''
 
@@ -16,7 +16,7 @@ class FieldSet(object):
     def __init__(self, **fields):
         '''
         :param **fields: dict -- mapping of field names to
-        :class: `restpy.fields.Field`
+        :class: `restea.fields.Field`
         '''
         self.fields = {}
         for name, field in fields.iteritems():
@@ -46,9 +46,9 @@ class FieldSet(object):
         '''
         Validates payload input
         :param data: dict -- input playload data to be validated
-        :raises restpy.fields.FieldSet.Error: field validation faield
-        :raises restpy.fields.FieldSet.Error: required field missing
-        :raises restpy.fields.FieldSet.ConfigurationError: misformed field
+        :raises restea.fields.FieldSet.Error: field validation faield
+        :raises restea.fields.FieldSet.Error: required field missing
+        :raises restea.fields.FieldSet.ConfigurationError: misformed field
         :returns: dict -- validated data
         '''
         field_names = self.field_names
@@ -96,7 +96,7 @@ class Field(object):
         '''
         Get a validation for a setting name provided
         :param setting_name: string -- name of the setting
-        :raises restpy.fields.FieldSet.ConfigurationError: validator method
+        :raises restea.fields.FieldSet.ConfigurationError: validator method
         is not found for a current class
         :returns: function -- field method handling setting validation
         '''

@@ -4,10 +4,10 @@ import nose
 
 from mock import patch
 
-from restpy import errors
-from restpy import formats
-from restpy import fields
-from restpy.resource import Resource
+from restea import errors
+from restea import formats
+from restea import fields
+from restea.resource import Resource
 
 
 def create_resource_helper(

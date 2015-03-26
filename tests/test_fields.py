@@ -1,6 +1,6 @@
 import mock
 import nose
-from restpy.fields import (
+from restea.fields import (
     Field,
     FieldSet,
     Integer,

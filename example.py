@@ -1,10 +1,10 @@
 import random
 from flask import Flask
 
-from restpy import errors
-from restpy.resource import Resource
-from restpy.adapters.flaskwrap import FlaskResourceWrapper
-from restpy import fields
+from restea import errors
+from restea.resource import Resource
+from restea.adapters.flaskwrap import FlaskResourceWrapper
+from restea import fields
 
 app = Flask(__name__)
 

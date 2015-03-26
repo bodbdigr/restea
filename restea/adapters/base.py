@@ -1,4 +1,4 @@
-import restpy.formats as formats
+import restea.formats as formats
 
 
 class BaseResourceWrapper(object):
@@ -7,7 +7,7 @@ class BaseResourceWrapper(object):
     '''
     def __init__(self, resource_class):
         '''
-        :param resource_class: :class: `restpy.resource.Resource` -- resource
+        :param resource_class: :class: `restea.resource.Resource` -- resource
         object implementing methods to create/edit/delete data
         '''
         self._resource_class = resource_class
@@ -41,7 +41,7 @@ class BaseResourceWrapper(object):
 
 class BaseRequestWrapper(object):
     '''
-    BaseRequestWrapper wraps the `restpy.request.Request` objects to abstract
+    BaseRequestWrapper wraps the `restea.request.Request` objects to abstract
     implementation bettween different frameworks
     '''
     def __init__(self, original_request):

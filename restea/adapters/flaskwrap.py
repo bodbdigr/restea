@@ -1,7 +1,7 @@
 import flask
-import restpy.formats as formats
+import restea.formats as formats
 
-from restpy.adapters.base import (
+from restea.adapters.base import (
     BaseResourceWrapper,
     BaseRequestWrapper,
 )
@@ -51,7 +51,7 @@ class FlaskRequestWrapper(BaseRequestWrapper):
 class FlaskResourceWrapper(BaseResourceWrapper):
     '''
     FlaskResourceWrapper implements flask 'view' api for the
-    `restpy.Resource` object, aka routing and return values in flask format
+    `restea.Resource` object, aka routing and return values in flask format
     '''
     @property
     def app(self):
@@ -63,7 +63,7 @@ class FlaskResourceWrapper(BaseResourceWrapper):
 
     def wrap_request(self, *args, **kwargs):
         '''
-        Prepares data and pass control to `restpy.Resource` object
+        Prepares data and pass control to `restea.Resource` object
 
         :returns: :class: `flask.Response`
         '''

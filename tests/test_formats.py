@@ -2,7 +2,7 @@ import json
 import nose
 import mock
 from mock import patch
-from restpy import formats
+from restea import formats
 
 
 @patch.object(formats, '_formatter_registry')

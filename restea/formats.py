@@ -12,7 +12,7 @@ class LoadError(Exception):
 
 class FormatterRegistry(type):
     '''
-    Registry metaclass. Registers all `restpy.formats.BaseFormat` sublcasses
+    Registry metaclass. Registers all `restea.formats.BaseFormat` sublcasses
     in _formatter_registry
     '''
     def __init__(cls, name, bases, dict):
@@ -84,7 +84,7 @@ def get_formatter(format_name):
     '''
     Factory method returning format class based on it's name
     :param format_name: string -- name of the format
-    :returns: either subclass :class: `restpy.formats.BaseFormatter` or None
+    :returns: either subclass :class: `restea.formats.BaseFormatter` or None
     '''
     return _formatter_registry.get(format_name)
 
