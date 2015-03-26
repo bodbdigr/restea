@@ -1,4 +1,5 @@
 import json
+import nose
 import mock
 from mock import patch
 from restpy import formats
@@ -12,9 +13,20 @@ def test_formatter_registry(registry_mock):
     registry_mock.__setitem__.assert_called_with('a', A)
 
 
-def test_base_formatter_interface():
-    assert hasattr(formats.BaseFormatter, 'serialize')
-    assert hasattr(formats.BaseFormatter, 'unserialize')
+def test_base_formatter_serialize_should_be_abstract():
+    nose.tools.assert_raises(
+        NotImplementedError,
+        formats.BaseFormatter.serialize,
+        {}
+    )
+
+
+def test_base_formatter_unserialize_should_be_abstract():
+    nose.tools.assert_raises(
+        NotImplementedError,
+        formats.BaseFormatter.unserialize,
+        ''
+    )
 
 
 test_data = {
@@ -39,8 +51,24 @@ def test_json_format_unserialize():
     assert formats.JsonFormat.unserialize(json.dumps(test_data)) == test_data
 
 
-def test_json_format_serialize():
-    assert formats.JsonFormat.serialize(test_data) == json.dumps(test_data)
+@patch.object(json, 'loads')
+def test_json_format_unserialize_value_error(loads_mock):
+    loads_mock.side_effect = ValueError('Wrong data')
+    nose.tools.assert_raises(
+        formats.LoadError,
+        formats.JsonFormat.unserialize,
+        ''
+    )
+
+
+@patch.object(json, 'dumps')
+def test_json_format_serialize_value_error(dumps_mock):
+    dumps_mock.side_effect = ValueError('Wrong type object passed')
+    nose.tools.assert_raises(
+        formats.LoadError,
+        formats.JsonFormat.serialize,
+        {}
+    )
 
 
 def test_get_formatter():

@@ -81,6 +81,14 @@ def test_field_set_name():
     assert f._name == 'test'
 
 
+def test_field_validate_field_base_should_be_abstract():
+    f = Field()
+    nose.tools.assert_raises(
+        NotImplementedError,
+        f._validate_field,
+        'test'
+    )
+
 def test_field_get_settings_validator():
     f = Field()
     f._validate_my_setting = mock.Mock()

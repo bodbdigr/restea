@@ -129,12 +129,12 @@ def test_apply_decorators():
     assert resource.create() == expected_values
 
 
-def test_is_valid_decorator_positive():
+def test_is_valid_formatter_positive():
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     assert resource._is_valid_formatter
 
 
-def test_is_valid_decorator_negative():
+def test_is_valid_formatter_negative():
     resource, _, _ = create_resource_helper(formatter=None)
     nose.tools.assert_false(resource._is_valid_formatter)
 
@@ -278,6 +278,15 @@ def test_process_wrong_formatter():
 
     nose.tools.assert_raises(
         errors.BadRequestError,
+        resource.process,
+    )
+
+
+def test_process_method_raising_rest_error():
+    resource, _, _ = create_resource_helper(formatter=None)
+    resource.list = mock.Mock(side_effect=errors.RestError)
+    nose.tools.assert_raises(
+        errors.RestError,
         resource.process,
     )
 

@@ -166,6 +166,7 @@ class Resource(object):
         except fields.FieldSet.ConfigurationError, e:
             raise errors.ServerError(e.message)
 
+
     def process(self, *args, **kwargs):
         '''
         Processes the payload and maps HTTP method to resource object methods
@@ -190,10 +191,9 @@ class Resource(object):
 
         try:
             res = method(*args, **kwargs)
-        except errors.RestError:
-            raise
+        except errors.RestError, e:
+            raise e
         except Exception:
-            # TODO Add exception logging here
             raise errors.ServerError('Service is not available')
 
         try:
