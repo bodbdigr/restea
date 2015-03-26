@@ -1,3 +1,4 @@
+import json
 import mock
 import nose
 
@@ -320,7 +321,7 @@ def test_process_error_in_formatter_serialize_should_raise_server_error(
 def test_dispatch_valid(process_mock):
     args = ('arg1', 'arg2')
     kwargs = {'kw1': 'kw1', 'kw2': 'kw2'}
-    expected_result = '{"res": "response from process"}'
+    expected_result = json.dumps({'res': 'response from process'})
     expected_content_type = 'content/type'
 
     formatter_mock = mock.Mock(content_type=expected_content_type)
@@ -341,13 +342,13 @@ def test_dispatch_exception(process_mock):
     resource.process.side_effect = errors.ServerError('Error!')
 
     res, status, content_type = resource.dispatch()
-    assert res == '{"error": "Error!"}'
+    assert res == json.dumps({'error': 'Error!'})
     assert status == 503
     assert content_type == 'application/json'
 
     resource.process.side_effect = errors.BadRequestError('Wrong!', code=101)
 
     res, status, content_type = resource.dispatch()
-    assert res == '{"code": 101, "error": "Wrong!"}'
+    assert res == json.dumps({'error': 'Wrong!', 'code': 101})
     assert status == 400
     assert content_type == 'application/json'
