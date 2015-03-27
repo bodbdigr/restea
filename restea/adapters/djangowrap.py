@@ -10,7 +10,7 @@ from restea.adapters.base import (
 
 class DjangoRequestWrapper(BaseRequestWrapper):
     '''
-    Object wrapping django request object.
+    Object wrapping Django request object.
     '''
     @property
     def method(self):
@@ -26,7 +26,7 @@ class DjangoRequestWrapper(BaseRequestWrapper):
         '''
         Returns a headers dict
 
-        :returns: dict -- headers been send to server
+        :returns: dict -- received request headers
         '''
         return self._original_request.META
 
@@ -51,8 +51,8 @@ class DjangoRequestWrapper(BaseRequestWrapper):
 
 class DjangoResourceRouter(BaseResourceWrapper):
     '''
-    Wraps over django views, implements django view api and creates routing in
-    the django urlrouter format
+    Wraps over Django views, implements Django view API and creates routing in
+    the Django urlrouter format
     '''
 
     def wrap_request(self, request, *args, **kwargs):

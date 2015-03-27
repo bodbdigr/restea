@@ -1,13 +1,13 @@
 class RestError(Exception):
     '''
-    Base rest error exception class. All other rest exception are derived from
-    RestError
+    Base rest error exception class. All other rest exceptions are derived from
+    RestError.
     '''
     def __init__(self, message, code=None):
         '''
         :param message: string -- exception message
-        :param code: int -- code of the error, optional. used to be returned
-        alongside meesage
+        :param code: int -- error code, optional. used to be returned
+        alongside message
         '''
         super(RestError, self).__init__(message)
         self.code = code
@@ -29,7 +29,7 @@ class ForbiddenError(RestError):
 
 class NotFoundError(RestError):
     '''
-    HTTP 404. Not found error
+    HTTP 404. Not found
     '''
     http_code = 404
 

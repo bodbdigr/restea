@@ -42,7 +42,7 @@ class BaseResourceWrapper(object):
 class BaseRequestWrapper(object):
     '''
     BaseRequestWrapper wraps the `restea.request.Request` objects to abstract
-    implementation bettween different frameworks
+    implementation between different frameworks
     '''
     def __init__(self, original_request):
         '''
@@ -64,7 +64,7 @@ class BaseRequestWrapper(object):
         '''
         Returns a headers dict
 
-        :returns: dict -- headers been send to server
+        :returns: dict -- received request headers
         '''
         raise NotImplementedError
 

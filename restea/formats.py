@@ -6,13 +6,13 @@ _formatter_registry = {}
 
 class LoadError(Exception):
     '''
-    Error raiseed in case serializing or unserializing went wrong
+    Error raised in case serializing or unserializing went wrong
     '''
 
 
 class FormatterRegistry(type):
     '''
-    Registry metaclass. Registers all `restea.formats.BaseFormat` sublcasses
+    Registry metaclass. Registers all `restea.formats.BaseFormat` subclasses
     in _formatter_registry
     '''
     def __init__(cls, name, bases, dict):
@@ -30,10 +30,10 @@ class BaseFormatter(object):
     @classmethod
     def unserialize(cls, data):
         '''
-        Unserializes imcomming data (payload)
+        Unserializes incoming data (payload)
 
         :param data: string - raw data to be unserialized
-        :returns: dict -- respesenation of the data in python datastructure
+        :returns: dict -- respresentation of the data in Python data structure
         '''
         raise NotImplementedError
 
@@ -42,8 +42,8 @@ class BaseFormatter(object):
         '''
         Serializes outgoing data
 
-        :param data: dict - python data structure to be serialized
-        :returns: string -- serialized respesenation of the data
+        :param data: dict - Python data structure to be serialized
+        :returns: string -- serialized representation of the data
         '''
         raise NotImplementedError
 
@@ -56,10 +56,10 @@ class JsonFormat(BaseFormatter):
     @classmethod
     def unserialize(cls, data):
         '''
-        Unserializes imcomming data (payload)
+        Unserializes incomming data (payload)
 
         :param data: string - raw data to be unserialized
-        :returns: dict -- respesenation of the data in python datastructure
+        :returns: dict -- representation of the data in Python data structure
         '''
         try:
             return json.loads(data)
@@ -71,8 +71,8 @@ class JsonFormat(BaseFormatter):
         '''
         Serializes outgoing data
 
-        :param data: dict - python data structure to be serialized
-        :returns: string -- serialized respesenation of the data
+        :param data: dict - Python data structure to be serialized
+        :returns: string -- serialized representation of the data
         '''
         try:
             return json.dumps(data)
@@ -82,7 +82,7 @@ class JsonFormat(BaseFormatter):
 
 def get_formatter(format_name):
     '''
-    Factory method returning format class based on it's name
+    Factory method returning format class based on its name
     :param format_name: string -- name of the format
     :returns: either subclass :class: `restea.formats.BaseFormatter` or None
     '''
