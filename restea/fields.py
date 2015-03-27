@@ -15,7 +15,8 @@ class FieldSet(object):
 
     def __init__(self, **fields):
         '''
-        :param **fields: dict -- mapping of field names to
+        :param **fields: mapping of field names to
+        :type **fields: dict
         :class: `restea.fields.Field`
         '''
         self.fields = {}
@@ -27,7 +28,8 @@ class FieldSet(object):
     def field_names(self):
         '''
         Returns all field names
-        :returns: set -- field names (from self.fields)
+        :returns: field names (from self.fields)
+        :rtype: set
         '''
         return set(self.fields.keys())
 
@@ -35,7 +37,8 @@ class FieldSet(object):
     def required_field_names(self):
         '''
         Returns only required field names
-        :returns: set -- required field names (from self.fields)
+        :returns: required field names (from self.fields)
+        :rtype: set
         '''
         return set(
             name for name, field in self.fields.iteritems()
@@ -45,11 +48,13 @@ class FieldSet(object):
     def validate(self, data):
         '''
         Validates payload input
-        :param data: dict -- input playload data to be validated
+        :param data: input playload data to be validated
+        :type data: dict
         :raises restea.fields.FieldSet.Error: field validation failed
         :raises restea.fields.FieldSet.Error: required field missing
         :raises restea.fields.FieldSet.ConfigurationError: badformed field
-        :returns: dict -- validated data
+        :returns: validated data
+        :rtype: dict
         '''
         field_names = self.field_names
         cleaned_data = {}
@@ -72,7 +77,8 @@ class Field(object):
     '''
     def __init__(self, **settings):
         '''
-        :param **settings: dict -- settings dict
+        :param **settings: settings dict
+        :type **settings: dict
         '''
         self.required = settings.pop('required', False)
         self._name = None
@@ -81,24 +87,28 @@ class Field(object):
     def set_name(self, name):
         '''
         Sets field name
-        :param name: string -- setter for a name
+        :param name: setter for a name
+        :type name: str
         '''
         self._name = name
 
     def _validate_field(self, field_value):
         '''
         Validates a field value. Should be overriden in a child class
-        :param field_name: string -- name of the field to be validated
+        :param field_name: name of the field to be validated
+        :type field_name: str
         '''
         raise NotImplementedError
 
     def _get_setting_validator(self, setting_name):
         '''
         Get a validation for a setting name provided
-        :param setting_name: string -- name of the setting
+        :param setting_name: name of the setting
+        :type setting_name: str
         :raises restea.fields.FieldSet.ConfigurationError: validator method
         is not found for a current class
-        :returns: function -- field method handling setting validation
+        :returns: field method handling setting validation
+        :rtype: function
         '''
         validator_method_name = '_validate_{}'.format(setting_name)
 
@@ -113,8 +123,10 @@ class Field(object):
     def validate(self, field_value):
         '''
         Validates as field including settings validation
-        :param field_name: string -- name of the field to be validated
-        :returns: dict -- validated data
+        :param field_name: name of the field to be validated
+        :type field_name: str
+        :returns: validated data
+        :rtype: dict
         '''
         res = self._validate_field(field_value)
 
@@ -132,8 +144,10 @@ class Integer(Field):
     def _validate_field(self, field_value):
         '''
         Validates if field value is numeric
-        :param field_name: string -- name of the field to be validated
-        :returns: int -- validated value
+        :param field_name: name of the field to be validated
+        :type field_name: str
+        :returns: validated value
+        :rtype: int
         '''
         try:
             return int(field_value)
@@ -150,8 +164,10 @@ class String(Field):
     def _validate_max_length(self, field_value, option_value):
         '''
         Validates if field value is not longer then
-        :param field_name: string -- name of the field to be validated
-        :returns: string -- validated value
+        :param field_name: name of the field to be validated
+        :type field_name: str
+        :returns: validated value
+        :rtype: str
         '''
         if len(field_value) > option_value:
             raise FieldSet.Error(
@@ -162,8 +178,10 @@ class String(Field):
     def _validate_field(self, field_value):
         '''
         Validates if field value is string
-        :param field_name: string -- name of the field to be validated
-        :returns: string -- validated value
+        :param field_name: name of the field to be validated
+        :type field_name: str
+        :returns: validated value
+        :rtype: str
         '''
         if not isinstance(field_value, basestring):
             raise FieldSet.Error(

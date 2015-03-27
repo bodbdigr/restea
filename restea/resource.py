@@ -22,12 +22,11 @@ class Resource(object):
 
     def __init__(self, request, formatter):
         '''
-        :param request: :class: `restea.apapters.base.BaseRequestWrapper`
-        sublcass -- request wrapper object
+        :param request: request wrapper object
+        :type request: :class: `restea.apapters.base.BaseRequestWrapper`
 
-        :param formatter: :class: `restea.formats.BaseFormatter` subclass --
-        formatter class implementing serialization and unserialization of
-        the data
+        :param formatter: formatter object
+        :type formatter: :class: `restea.formats.BaseFormatter`
         '''
         if not hasattr(self, 'fields'):
             self.fields = fields.FieldSet()
@@ -39,16 +38,20 @@ class Resource(object):
         '''
         Checks if given method requires iden
 
-        :param method_name: string -- name of method on a resrouce
-        :returns: bool - boolean value of whatever iden is needed or not
+        :param method_name: name of method on a resrouce
+        :type method_name: str
+        :returns: boolean value of whatever iden is needed or not
+        :rtype: bool
         '''
         return method_name not in ('list', 'create')
 
     def _apply_decorators(self, method):
         '''
         Returns method decorated with decorators specified in self.decorators
-        :param method: -- resource method
+        :param method: resource instance method from self.method_map
+        :type method: function
         :returns: decorated method
+        :rtype: function
         '''
         if not hasattr(self, 'decorators'):
             return method
@@ -64,8 +67,10 @@ class Resource(object):
 
         :param has_iden: specifies if requested url has iden (i.e /res/ vs
         /res/1)
+        :type has_iden: bool
         :raises errors.MethodNotAllowedError: if HTTP method is not supprted
-        :returns: string - name of the resource method name
+        :returns: name of the resource method name
+        :rtype: str
         '''
         method = self.request.method
         method = self.request.headers.get(
@@ -98,7 +103,8 @@ class Resource(object):
     def _is_valid_formatter(self):
         '''
         Returns is self.formatter refers to a valid formatter class object
-        :returns: bool
+        :returns: whatever self.formatter is valid or not
+        :rtype: bool
         '''
         return (
             isinstance(self.formatter, type) and
@@ -111,7 +117,8 @@ class Resource(object):
         Formatter used in case of error, uses self.formatter with fallback to
         `restea.formats.DEFAULT_FORMATTER`
 
-        :returns: :class: subclass of `restea.formats.BaseFormatter`
+        :returns: formatter object
+        :rtype: :class: `restea.formats.BaseFormatter`
         '''
         if self._is_valid_formatter:
             return self.formatter
@@ -122,10 +129,12 @@ class Resource(object):
         '''
         Returns method based on a name
 
-        :param method_name: string -- name of the method
+        :param method_name: name of the method
+        :type method_name: str
         :raises errors.BadRequestError: method is not implemented for a given
         resource
-        :returns: -- method of the REST resource object
+        :returns: method of the REST resource object
+        :rtype: function
         '''
         method_exists = hasattr(self, method_name)
         if not method_exists:
@@ -142,7 +151,8 @@ class Resource(object):
         :raises restea.errors.BadRequestError: unparseable data
         :raises restea.errors.BadRequestError: payload is not mappable
         :raises restea.errors.BadRequestError: validation of fields not passed
-        :returns: dict - validated data passed to resource
+        :returns: validated data passed to resource
+        :rtype: dict
         '''
         if not self.request.data:
             return {}
@@ -175,7 +185,8 @@ class Resource(object):
         :raises restea.errors.ServerError: Some unhandled exception in
         resource method implementation or formatter serialization error
 
-        :returns: string -- serialized data to be returned to client
+        :returns: serialized data to be returned to client
+        :rtype: str
         '''
         if not self._is_valid_formatter:
             raise errors.BadRequestError(
@@ -205,8 +216,8 @@ class Resource(object):
         Dispatches the request and handles exception to return data, status
         and content type
 
-        :returns: tuple -- 3 element tuple: result, HTTP status code and
-        content type
+        :returns: 3 element tuple: result, HTTP status code and content type
+        :rtype: tuple
         '''
         try:
             return (
