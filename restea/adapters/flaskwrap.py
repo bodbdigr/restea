@@ -9,7 +9,7 @@ from restea.adapters.base import (
 
 class FlaskRequestWrapper(BaseRequestWrapper):
     '''
-    Object wrapping flask request context.
+    Object wrapping Flask request context.
     '''
     @property
     def data(self):
@@ -34,7 +34,7 @@ class FlaskRequestWrapper(BaseRequestWrapper):
         '''
         Returns a headers dict
 
-        :returns: dict -- headers been send to server
+        :returns: dict -- received request headers
         '''
         return self._original_request.headers
 
@@ -50,14 +50,14 @@ class FlaskRequestWrapper(BaseRequestWrapper):
 
 class FlaskResourceWrapper(BaseResourceWrapper):
     '''
-    FlaskResourceWrapper implements flask 'view' api for the
-    `restea.Resource` object, aka routing and return values in flask format
+    FlaskResourceWrapper implements Flask 'view' API for the
+    `restea.Resource` object, aka routing and return values in Flask format
     '''
     @property
     def app(self):
         '''
-        Returns current flask application
-        :returns: :class: `app.Flask` -- current flask app
+        Returns current Flask application
+        :returns: :class: `app.Flask` -- current Flask app
         '''
         return flask.current_app
 
@@ -83,7 +83,7 @@ class FlaskResourceWrapper(BaseResourceWrapper):
 
     def __adapt_path(self, path):
         '''
-        Adapts the path to math flask requirements for the url routes
+        Adapts the path to path Flask requirements for the url routes
 
         :param path: string -- route path
         :returns: string -- normalized route path

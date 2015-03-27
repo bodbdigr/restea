@@ -8,7 +8,7 @@ class FieldSet(object):
     class Error(Exception):
         pass
 
-    #: error thrown in case misconfigured field, for istance if setting
+    #: error thrown in case misconfigured field, for instance if setting
     # can't be found for a given field
     class ConfigurationError(Exception):
         pass
@@ -46,9 +46,9 @@ class FieldSet(object):
         '''
         Validates payload input
         :param data: dict -- input playload data to be validated
-        :raises restea.fields.FieldSet.Error: field validation faield
+        :raises restea.fields.FieldSet.Error: field validation failed
         :raises restea.fields.FieldSet.Error: required field missing
-        :raises restea.fields.FieldSet.ConfigurationError: misformed field
+        :raises restea.fields.FieldSet.ConfigurationError: badformed field
         :returns: dict -- validated data
         '''
         field_names = self.field_names
@@ -87,7 +87,7 @@ class Field(object):
 
     def _validate_field(self, field_value):
         '''
-        Validates a field value. Shold be overriden in a child class
+        Validates a field value. Should be overriden in a child class
         :param field_name: string -- name of the field to be validated
         '''
         raise NotImplementedError
@@ -138,7 +138,7 @@ class Integer(Field):
         try:
             return int(field_value)
         except (ValueError, TypeError):
-            raise FieldSet.Error('Field "{}" not a number'.format(self._name))
+            raise FieldSet.Error('Field "{}" is not a number'.format(self._name))
 
 
 class String(Field):
@@ -164,5 +164,5 @@ class String(Field):
         :returns: string -- validated value
         '''
         if not isinstance(field_value, basestring):
-            raise FieldSet.Error('Field "{}" not a string'.format(self._name))
+            raise FieldSet.Error('Field "{}" is not a string'.format(self._name))
         return field_value
