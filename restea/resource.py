@@ -205,7 +205,8 @@ class Resource(object):
         Dispatches the request and handles exception to return data, status
         and content type
 
-        :retruns: tuple -- 3 element tuple: result, HTTP status code and content type
+        :returns: tuple -- 3 element tuple: result, HTTP status code and
+        content type
         '''
         try:
             return (

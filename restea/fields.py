@@ -138,7 +138,9 @@ class Integer(Field):
         try:
             return int(field_value)
         except (ValueError, TypeError):
-            raise FieldSet.Error('Field "{}" is not a number'.format(self._name))
+            raise FieldSet.Error(
+                'Field "{}" is not a number'.format(self._name)
+            )
 
 
 class String(Field):
@@ -164,5 +166,7 @@ class String(Field):
         :returns: string -- validated value
         '''
         if not isinstance(field_value, basestring):
-            raise FieldSet.Error('Field "{}" is not a string'.format(self._name))
+            raise FieldSet.Error(
+                'Field "{}" is not a string'.format(self._name)
+            )
         return field_value
