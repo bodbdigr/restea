@@ -199,5 +199,5 @@ def test_string_validate_not_acceptable_value():
         nose.tools.assert_raises(
             FieldSet.Error,
             f._validate_field,
-            None
+            fail_val
         )
