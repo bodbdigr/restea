@@ -189,9 +189,7 @@ class Resource(object):
         :rtype: str
         '''
         if not self._is_valid_formatter:
-            raise errors.BadRequestError(
-                'Not recognizeable format'
-            )
+            raise errors.BadRequestError('Not recognizable format')
 
         self.payload = self._get_payload()
 
