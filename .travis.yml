@@ -6,3 +6,4 @@ install:
   - pip install -r requirements.txt
 sudo: false
 script: make test
+after_success: coveralls

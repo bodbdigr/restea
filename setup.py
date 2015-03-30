@@ -11,5 +11,17 @@ setup(
     url='https://github.com/bodbdigr/restea',
     download_url='https://github.com/bodbdigr/restea/archive/0.1.2.tar.gz',
     keywords=['rest', 'restful', 'restea'],
-    classifiers=[]
+    license='MIT',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Topic :: Internet :: WWW/HTTP',
+    ]
 )
