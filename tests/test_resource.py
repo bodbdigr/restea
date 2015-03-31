@@ -48,8 +48,9 @@ def test_get_method_name_edit():
 
 def test_get_method_name_edit_without_iden():
     resource, _, _ = create_resource_helper(method='PUT')
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        'Given method requires iden',
         resource._get_method_name,
         has_iden=False
     )
@@ -62,8 +63,9 @@ def test_get_method_name_create():
 
 def test_get_method_name_create_with_id():
     resource, _, _ = create_resource_helper(method='POST')
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        "Given method shouldn't have iden",
         resource._get_method_name,
         has_iden=True
     )
@@ -76,8 +78,9 @@ def test_get_method_name_delete():
 
 def test_get_method_name_unpecefied_method():
     resource, _, _ = create_resource_helper(method='HEAD')
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.MethodNotAllowedError,
+        'Method "HEAD" is not supported',
         resource._get_method_name,
         has_iden=True
     )
@@ -186,8 +189,9 @@ def test_get_method_valid():
 
 def test_get_method_with_not_existing_method():
     resource, _, _ = create_resource_helper()
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        'Method "GET" is not implemented for a given endpoint',
         resource._get_method,
         'not_exising_method'
     )
@@ -212,8 +216,9 @@ def test_get_payload_unexpected_data():
     )
     formatter_mock.unserialize.side_effect = formats.LoadError()
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        'Fail to load the data',
         resource._get_payload,
     )
 
@@ -224,8 +229,9 @@ def test_get_payload_not_mapable_payload():
     )
     formatter_mock.unserialize.return_value = ['item']
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        'Data should be key -> value structure',
         resource._get_payload,
     )
 
@@ -237,10 +243,14 @@ def test_get_payload_field_validation_fails():
     formatter_mock.unserialize.return_value = {'test': 'data'}
 
     resource.fields = mock.Mock()
-    resource.fields.validate.side_effect = fields.FieldSet.Error()
+    field_error_message = 'Invalid field value'
+    resource.fields.validate.side_effect = fields.FieldSet.Error(
+        field_error_message
+    )
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        field_error_message,
         resource._get_payload,
     )
 
@@ -252,11 +262,15 @@ def test_get_payload_field_misconfigured_fields_fails():
     formatter_mock.unserialize.return_value = {'test': 'data'}
     resource.fields = mock.Mock()
 
-    conf_error = fields.FieldSet.ConfigurationError()
+    configuration_error_message = 'Improperly configured'
+    conf_error = fields.FieldSet.ConfigurationError(
+        configuration_error_message
+    )
     resource.fields.validate.side_effect = conf_error
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.ServerError,
+        configuration_error_message,
         resource._get_payload,
     )
 
@@ -305,8 +319,9 @@ def test_process_wrong_formatter():
     resource, _, _ = create_resource_helper(formatter=None)
     resource.list = mock.MagicMock(return_value='')
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.BadRequestError,
+        'Not recognizable format',
         resource.process,
     )
 
@@ -315,8 +330,9 @@ def test_process_wrong_formatter():
 def test_process_method_raising_rest_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     resource.list = mock.Mock(side_effect=errors.RestError)
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.RestError,
+        'Service is not available',
         resource.process,
     )
 
@@ -326,8 +342,9 @@ def test_process_error_in_method_should_raise_server_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
     resource.list = mock.MagicMock(side_effect=ValueError('I will raise'))
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.ServerError,
+        'Service is not available',
         resource.process,
     )
 
@@ -340,8 +357,9 @@ def test_process_error_in_formatter_serialize_should_raise_server_error(
     resource.list = mock.MagicMock(return_value='')
     serialize_mock.side_effect = formats.LoadError()
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         errors.ServerError,
+        "Service can't respond with this format",
         resource.process,
     )
 

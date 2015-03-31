@@ -57,8 +57,9 @@ def test_feild_set_validate_requred_fields_missing():
     fs, f1, _ = create_field_set_helper()
     f1.requred = True
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         FieldSet.Error,
+        'Field "field1" is missing',
         fs.validate,
         {'field2': '2'}
     )
@@ -100,8 +101,9 @@ def test_field_get_settings_validator():
 def test_field_get_settings_validator_raise_configration_error():
     f = Field()
     f.set_name('test')
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         FieldSet.ConfigurationError,
+        'Setting "my_setting" is not supported for field "test"',
         f._get_setting_validator,
         'my_setting'
     )
@@ -124,11 +126,15 @@ def test_field_validate_raises_on_field_validation():
     f = Field(my_setting=1)
     f.set_name('test')
 
-    f._validate_field = mock.Mock(side_effect=FieldSet.Error())
+    field_error_message = 'Field error message'
+    f._validate_field = mock.Mock(
+        side_effect=FieldSet.Error(field_error_message)
+    )
     f._validate_my_setting = mock.Mock()
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         FieldSet.Error,
+        field_error_message,
         f.validate,
         'value'
     )
@@ -140,10 +146,14 @@ def test_field_validate_raises_on_setting_validation():
     f.set_name('test')
 
     f._validate_field = mock.Mock()
-    f._validate_my_setting = mock.Mock(side_effect=FieldSet.Error())
+    my_setting_error_message = 'my setting error message'
+    f._validate_my_setting = mock.Mock(
+        side_effect=FieldSet.Error(my_setting_error_message)
+    )
 
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         FieldSet.Error,
+        my_setting_error_message,
         f.validate,
         'value'
     )
@@ -168,8 +178,9 @@ def test_integer_field_validate_numberic_str():
 def test_integer_field_validate_non_acceptable_value():
     f = Integer()
     for fail_val in ('should not work', None, '10.10'):
-        nose.tools.assert_raises(
+        nose.tools.assert_raises_regexp(
             FieldSet.Error,
+            'Field "{}" is not a number'.format(f._name),
             f._validate_field,
             fail_val
         )
@@ -200,8 +211,9 @@ def test_string_validate_max_length():
 
 def test_string_validate_max_length_fail():
     f = String()
-    nose.tools.assert_raises(
+    nose.tools.assert_raises_regexp(
         FieldSet.Error,
+        'Field "{}" is longer than expected'.format(f._name),
         f._validate_max_length,
         'text1', 4
     )
@@ -215,10 +227,11 @@ def test_string_validate():
 def test_string_validate_not_acceptable_value():
     f = String()
     for fail_val in (10, None, list):
-        nose.tools.assert_raises(
+        nose.tools.assert_raises_regexp(
             FieldSet.Error,
+            'Field "{}" is not a string'.format(f._name),
             f._validate_field,
-            None
+            fail_val
         )
 
 
