@@ -1,3 +1,6 @@
+import re
+
+
 class FieldSet(object):
     '''
     FieldSet is a container for :class: `restea.fields.Field`. It registers
@@ -141,6 +144,21 @@ class Integer(Field):
     '''
     Integer implements field validation for numeric values
     '''
+    def _validate_range(self, field_value, option_value):
+        '''
+        Validates if field value is not longer then
+        :param field_name: name of the field to be validated
+        :type field_name: str
+        :returns: validated value
+        :rtype: str
+        '''
+        min_val, max_val = option_value
+        if not min_val <= field_value <= max_val:
+            raise FieldSet.Error(
+                'Value not in bounds for {}'.format(self._name)
+            )
+        return field_value
+
     def _validate_field(self, field_value):
         '''
         Validates if field value is numeric
@@ -188,3 +206,28 @@ class String(Field):
                 'Field "{}" is not a string'.format(self._name)
             )
         return field_value
+
+
+class Regex(String):
+    '''
+    Regex implements field validation using regex pattern
+    '''
+    def _validate_pattern(self, field_value, option_value):
+        '''
+        Validates if given string matches patten or list of patterns. If at
+        least one pattern matches validation is passing
+        '''
+        res = None
+        if hasattr(option_value, '__iter__'):
+            for pattern in option_value:
+                res = re.findall(pattern, field_value, re.IGNORECASE)
+                if res:
+                    break
+        else:
+            res = re.findall(option_value, field_value, re.IGNORECASE)
+
+        if not res:
+            raise FieldSet.Error(
+                'Field value doesn\'t match required pattern'
+            )
+        return res

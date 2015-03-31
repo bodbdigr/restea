@@ -45,6 +45,31 @@ class Resource(object):
         '''
         return method_name not in ('list', 'create')
 
+    def _match_responce_to_fields(self, dct):
+        '''
+        Filters output from rest method to return only fields matching
+        self.fields
+        :param dct: dict to be filtered
+        :type dct: dict
+        :returns: filtered dict, with no values out of self.fields
+        :rtype: dict
+        '''
+        return {
+            k: v for k, v in dct.iteritems()
+            if k in self.fields.field_names
+        }
+
+    def _match_resource_list_to_fields(self, lst):
+        '''
+        Filters 'list' output from rest method to return only fields matching
+        self.fields
+        :param lst: list to be filtered
+        :type lst: list, tuple, set
+        :returns: filtered list, with no values out of self.fields
+        :rtype: generator
+        '''
+        return (self._match_responce_to_fields(item) for item in lst)
+
     def _apply_decorators(self, method):
         '''
         Returns method decorated with decorators specified in self.decorators

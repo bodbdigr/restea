@@ -5,6 +5,7 @@ from restea.fields import (
     FieldSet,
     Integer,
     String,
+    Regex,
 )
 
 
@@ -174,6 +175,24 @@ def test_integer_field_validate_non_acceptable_value():
         )
 
 
+def test_integer_field_range_success():
+    f = Integer()
+    assert f._validate_range(1, (1, 10)) == 1
+    assert f._validate_range(5, (1, 10)) == 5
+    assert f._validate_range(10, (1, 10)) == 10
+
+
+def test_integer_field_range_fail():
+    f = Integer()
+    for fail_val in (100, 0, -5):
+        nose.tools.assert_raises(
+            FieldSet.Error,
+            f._validate_range,
+            fail_val,
+            (1, 10)
+        )
+
+
 def test_string_validate_max_length():
     f = String()
     f._validate_max_length('text', 4)
@@ -200,4 +219,40 @@ def test_string_validate_not_acceptable_value():
             FieldSet.Error,
             f._validate_field,
             None
+        )
+
+
+def test_regex_validate_pattern():
+    p = r'\d{1,3}'
+    f = Regex(patten=p)
+    for value in ('123', '0', '10'):
+        assert f._validate_pattern(value, p)[0] == value
+
+
+def test_regex_validate_pattern_list_pattrens():
+    p = [r'\d{1,3}', r'[a-z]{2,3}']
+    f = Regex(patten=p)
+    for value in ('100', '0', 'te', 'tes'):
+        assert f._validate_pattern(value, p)[0] == value
+
+
+def test_regex_validate_pattern_fail():
+    p = r'\d{3}'
+    f = Regex(patten=p)
+    for value in ('not_a_number', 'other12thing'):
+        nose.tools.assert_raises(
+            FieldSet.Error,
+            f._validate_pattern,
+            value, p
+        )
+
+
+def test_regex_validate_pattern_list_pattrens_fails():
+    p = [r'\d{3}', r'[a-z]{100}']
+    f = Regex(patten=p)
+    for value in ('not_a_number', 'other12thing'):
+        nose.tools.assert_raises(
+            FieldSet.Error,
+            f._validate_pattern,
+            value, p
         )

@@ -102,6 +102,34 @@ def test_iden_required_negative():
     nose.tools.assert_false(resource._iden_required('list'))
 
 
+def test_match_responce_to_fields():
+    resource, _, _ = create_resource_helper()
+    resource.fields = mock.Mock(spec=fields.FieldSet)
+    resource.fields.field_names = ['name1', 'name2', 'name3']
+
+    data = {'name1': 1, 'name2': 2, 'name3': 3, 'name4': 4}
+    expected_data = {'name1': 1, 'name2': 2, 'name3': 3}
+
+    assert resource._match_responce_to_fields(data) == expected_data
+
+
+def test_match_responce_list_to_fields():
+    resource, _, _ = create_resource_helper()
+    resource.fields = mock.Mock(spec=fields.FieldSet)
+    resource.fields.field_names = ['name1', 'name2', 'name3']
+
+    lst = [
+        {'name1': 1, 'name2': 2, 'name3': 3, 'name4': 4},
+        {'name1': 5, 'name2': 6},
+    ]
+    expected_lst = [
+        {'name1': 1, 'name2': 2, 'name3': 3},
+        {'name1': 5, 'name2': 6},
+    ]
+
+    assert list(resource._match_resource_list_to_fields(lst)) == expected_lst
+
+
 def test_apply_decorators():
     resource, _, _ = create_resource_helper()
     resource.create = mock.MagicMock(return_value={
