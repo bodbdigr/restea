@@ -224,8 +224,8 @@ class Resource(object):
 
         try:
             res = method(*args, **kwargs)
-        except errors.RestError as e:
-            raise e
+        except errors.RestError:
+            raise
         except Exception:
             raise errors.ServerError('Service is not available')
 

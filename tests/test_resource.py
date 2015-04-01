@@ -329,10 +329,10 @@ def test_process_wrong_formatter():
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_method_raising_rest_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.Mock(side_effect=errors.RestError)
+    resource.list = mock.Mock(side_effect=errors.RestError('test'))
     nose.tools.assert_raises_regexp(
         errors.RestError,
-        'Service is not available',
+        'test',
         resource.process,
     )
 
