@@ -1,5 +1,5 @@
 import mock
-import nose
+import pytest
 from restea.fields import (
     Field,
     FieldSet,
@@ -57,12 +57,9 @@ def test_feild_set_validate_requred_fields_missing():
     fs, f1, _ = create_field_set_helper()
     f1.requred = True
 
-    nose.tools.assert_raises_regexp(
-        FieldSet.Error,
-        'Field "field1" is missing',
-        fs.validate,
-        {'field2': '2'}
-    )
+    with pytest.raises(FieldSet.Error) as e:
+        fs.validate({'field2': '2'})
+        assert 'Field "field1" is missing' in str(e)
 
 
 def test_field_init():
@@ -85,11 +82,9 @@ def test_field_set_name():
 
 def test_field_validate_field_base_should_be_abstract():
     f = Field()
-    nose.tools.assert_raises(
-        NotImplementedError,
-        f._validate_field,
-        'test'
-    )
+
+    with pytest.raises(NotImplementedError):
+        f._validate_field('test')
 
 
 def test_field_get_settings_validator():
@@ -101,12 +96,11 @@ def test_field_get_settings_validator():
 def test_field_get_settings_validator_raise_configration_error():
     f = Field()
     f.set_name('test')
-    nose.tools.assert_raises_regexp(
-        FieldSet.ConfigurationError,
-        'Setting "my_setting" is not supported for field "test"',
-        f._get_setting_validator,
-        'my_setting'
-    )
+
+    with pytest.raises(FieldSet.ConfigurationError) as e:
+        f._get_setting_validator('my_setting')
+        assert 'Setting "my_setting" is ' + \
+               'not supported for field "test"' in str(e)
 
 
 def test_field_validate():
@@ -132,12 +126,10 @@ def test_field_validate_raises_on_field_validation():
     )
     f._validate_my_setting = mock.Mock()
 
-    nose.tools.assert_raises_regexp(
-        FieldSet.Error,
-        field_error_message,
-        f.validate,
-        'value'
-    )
+    with pytest.raises(FieldSet.Error) as e:
+        f.validate('value')
+        assert field_error_message in str(e)
+
     assert not f._validate_my_setting.called
 
 
@@ -151,12 +143,10 @@ def test_field_validate_raises_on_setting_validation():
         side_effect=FieldSet.Error(my_setting_error_message)
     )
 
-    nose.tools.assert_raises_regexp(
-        FieldSet.Error,
-        my_setting_error_message,
-        f.validate,
-        'value'
-    )
+    with pytest.raises(FieldSet.Error) as e:
+        f.validate('value')
+        assert my_setting_error_message in str(e)
+
     f._validate_field.assert_called_with('value')
 
 
@@ -178,12 +168,9 @@ def test_integer_field_validate_numberic_str():
 def test_integer_field_validate_non_acceptable_value():
     f = Integer()
     for fail_val in ('should not work', None, '10.10'):
-        nose.tools.assert_raises_regexp(
-            FieldSet.Error,
-            'Field "{}" is not a number'.format(f._name),
-            f._validate_field,
-            fail_val
-        )
+        with pytest.raises(FieldSet.Error) as e:
+            f._validate_field(fail_val)
+            assert 'Field "{}" is not a number'.format(f._name) in str(e)
 
 
 def test_integer_field_range_success():
@@ -196,12 +183,8 @@ def test_integer_field_range_success():
 def test_integer_field_range_fail():
     f = Integer()
     for fail_val in (100, 0, -5):
-        nose.tools.assert_raises(
-            FieldSet.Error,
-            f._validate_range,
-            fail_val,
-            (1, 10)
-        )
+        with pytest.raises(FieldSet.Error):
+            f._validate_range(fail_val, (1, 10))
 
 
 def test_string_validate_max_length():
@@ -211,12 +194,9 @@ def test_string_validate_max_length():
 
 def test_string_validate_max_length_fail():
     f = String()
-    nose.tools.assert_raises_regexp(
-        FieldSet.Error,
-        'Field "{}" is longer than expected'.format(f._name),
-        f._validate_max_length,
-        'text1', 4
-    )
+    with pytest.raises(FieldSet.Error) as e:
+        f._validate_max_length('text1', 4)
+        assert 'Field "{}" is longer than expected'.format(f._name) in str(e)
 
 
 def test_string_validate():
@@ -227,12 +207,9 @@ def test_string_validate():
 def test_string_validate_not_acceptable_value():
     f = String()
     for fail_val in (10, None, list):
-        nose.tools.assert_raises_regexp(
-            FieldSet.Error,
-            'Field "{}" is not a string'.format(f._name),
-            f._validate_field,
-            fail_val
-        )
+        with pytest.raises(FieldSet.Error) as e:
+            f._validate_field(fail_val)
+            assert 'Field "{}" is not a string'.format(f._name) in str(e)
 
 
 def test_regex_validate_pattern():
@@ -253,19 +230,13 @@ def test_regex_validate_pattern_fail():
     p = r'\d{3}'
     f = Regex(patten=p)
     for value in ('not_a_number', 'other12thing'):
-        nose.tools.assert_raises(
-            FieldSet.Error,
-            f._validate_pattern,
-            value, p
-        )
+        with pytest.raises(FieldSet.Error):
+            f._validate_pattern(value, p)
 
 
 def test_regex_validate_pattern_list_pattrens_fails():
     p = [r'\d{3}', r'[a-z]{100}']
     f = Regex(patten=p)
     for value in ('not_a_number', 'other12thing'):
-        nose.tools.assert_raises(
-            FieldSet.Error,
-            f._validate_pattern,
-            value, p
-        )
+        with pytest.raises(FieldSet.Error):
+            f._validate_pattern(value, p)
