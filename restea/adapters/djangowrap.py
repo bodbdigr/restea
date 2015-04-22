@@ -1,4 +1,4 @@
-import resttea.formats as formats
+import restea.formats as formats
 from django.http import HttpResponse
 from django.conf.urls import patterns, url
 
