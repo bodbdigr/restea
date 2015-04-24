@@ -21,11 +21,9 @@ class BaseResourceWrapper(object):
 
         :returns: tuple -- data_format found and modified kwargs
         '''
-        if 'data_format' in view_kwargs:
-            data_format = view_kwargs.pop(
-                'data_format',
-                formats.DEFAULT_FORMATTER.name
-            )
+        data_format = view_kwargs.pop('data_format', None)
+        if not data_format:
+            data_format = formats.DEFAULT_FORMATTER.name
         return data_format, view_kwargs
 
     def get_routes(self, path='', iden=''):
