@@ -1,3 +1,3 @@
 test:
-		flake8 .
-		nosetests --with-coverage --cover-package=restea
+	flake8 .
+	python -m pytest --cov-report term-missing --cov restea
