@@ -1,3 +1,4 @@
+import datetime
 import json
 import pytest
 import mock
@@ -31,7 +32,7 @@ test_data = {
         'sub3': {
             'subb4': 3,
             'subb5': [{'a': 1}, {'b': 2}]
-        }
+        },
     }
 }
 
@@ -51,6 +52,11 @@ def test_json_format_unserialize_value_error(loads_mock):
     with pytest.raises(formats.LoadError):
         formats.JsonFormat.unserialize('')
 
+
+def test_json_format_serialize():
+    test_data.update({'date_field': datetime.datetime.now()})
+    expected = json.dumps(test_data, cls=formats.DateTimeEncoder)
+    assert formats.JsonFormat.serialize(test_data) == expected
 
 @patch.object(json, 'dumps')
 def test_json_format_serialize_value_error(dumps_mock):
