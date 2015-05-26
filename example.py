@@ -22,8 +22,8 @@ sites = [
 
 
 def add_dummy_data(func):
-    def wrapper(*args, **kwargs):
-        res = func(*args, **kwargs)
+    def wrapper(self, *args, **kwargs):
+        res = func(self, *args, **kwargs)
         if isinstance(res, dict):
             res['dummy_key'] = 'dummy value'
         return res

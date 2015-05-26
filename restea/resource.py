@@ -167,7 +167,7 @@ class Resource(object):
             raise errors.BadRequestError(
                 msg.format(self.request.method)
             )
-        return getattr(self, method_name)
+        return getattr(type(self), method_name)
 
     def _get_payload(self):
         '''
@@ -223,7 +223,7 @@ class Resource(object):
         method = self._apply_decorators(method)
 
         try:
-            res = method(*args, **kwargs)
+            res = method(self, *args, **kwargs)
         except errors.RestError:
             raise
         except Exception:

@@ -177,7 +177,7 @@ def test_error_formatter_with_unknown_formatter():
 
 def test_get_method_valid():
     resource, _, _ = create_resource_helper()
-    resource.create = mock.Mock(return_value={})
+    type(resource).create = mock.Mock(return_value={})
     assert resource._get_method('create') == resource.create
 
 
@@ -278,7 +278,7 @@ def test_process_valid(serialize_mock):
     serialize_mock.return_value = mocked_value
 
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.show = mock.Mock(return_value={})
+    type(resource).show = mock.Mock(return_value={})
     res = resource.process(iden=10)
 
     assert res == mocked_value
@@ -289,7 +289,7 @@ def test_process_valid_list(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
 
     serialize_mock.return_value = '[]'
-    resource.list = mock.Mock(return_value=[])
+    type(resource).list = mock.Mock(return_value=[])
     res = resource.process()
     assert res == '[]'
 
@@ -311,7 +311,7 @@ def test_process_wrong_formatter():
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_method_raising_rest_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.Mock(side_effect=errors.RestError('test'))
+    type(resource).list = mock.Mock(side_effect=errors.RestError('test'))
 
     with pytest.raises(errors.RestError) as e:
         resource.process()
@@ -321,7 +321,7 @@ def test_process_method_raising_rest_error(serialize_mock):
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_error_in_method_should_raise_server_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.MagicMock(side_effect=ValueError('I will raise'))
+    type(resource).list = mock.MagicMock(side_effect=ValueError('I will raise'))
 
     with pytest.raises(errors.ServerError) as e:
         resource.process()
@@ -333,7 +333,7 @@ def test_process_error_in_formatter_serialize_should_raise_server_error(
     serialize_mock
 ):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.MagicMock(return_value='')
+    type(resource).list = mock.MagicMock(return_value='')
     serialize_mock.side_effect = formats.LoadError()
 
     with pytest.raises(errors.ServerError) as e:
