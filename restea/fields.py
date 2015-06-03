@@ -231,3 +231,15 @@ class Regex(String):
                 'Field value doesn\'t match required pattern'
             )
         return res
+
+
+class Boolean(Field):
+    '''
+    Boolean implements field validation for boolean values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, boolean):
+            raise FieldSet.Error(
+                'Field "{}" is not a boolean'.format(self._name)
+            )
+        return field_value
