@@ -321,7 +321,9 @@ def test_process_method_raising_rest_error(serialize_mock):
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_error_in_method_should_raise_server_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    type(resource).list = mock.MagicMock(side_effect=ValueError('I will raise'))
+    type(resource).list = mock.MagicMock(
+        side_effect=ValueError('I will raise')
+    )
 
     with pytest.raises(errors.ServerError) as e:
         resource.process()
