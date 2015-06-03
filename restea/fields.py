@@ -231,3 +231,51 @@ class Regex(String):
                 'Field value doesn\'t match required pattern'
             )
         return res
+
+
+class Boolean(Field):
+    '''
+    Boolean implements field validation for boolean values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, bool):
+            raise FieldSet.Error(
+                'Field "{}" is not a boolean'.format(self._name)
+            )
+        return field_value
+
+
+class List(Field):
+    '''
+    List implements field validation for list values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, list):
+            raise FieldSet.Error(
+                'Field "{}" is not a list'.format(self._name)
+            )
+        return field_value
+
+    def _validate_element_field(self, element_field, field_value):
+        try:
+            return [
+                element_field.validate(el) for el in field_value
+            ]
+        except FieldSet.Error:
+            raise FieldSet.Error(
+                'One of the elements on field "{}" failed to validate'.format(
+                    self._name
+                )
+            )
+
+
+class Dict(Field):
+    '''
+    Dict implements field validation for dict values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, dict):
+            raise FieldSet.Error(
+                'Field "{}" is not a dict'.format(self._name)
+            )
+        return field_value
