@@ -58,6 +58,7 @@ def test_json_format_serialize():
     expected = json.dumps(test_data, cls=formats.DateTimeEncoder)
     assert formats.JsonFormat.serialize(test_data) == expected
 
+
 @patch.object(json, 'dumps')
 def test_json_format_serialize_value_error(dumps_mock):
     dumps_mock.side_effect = ValueError('Wrong type object passed')

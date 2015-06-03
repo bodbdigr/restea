@@ -1,9 +1,12 @@
 import mock
 import pytest
 from restea.fields import (
+    Boolean,
+    Dict,
     Field,
     FieldSet,
     Integer,
+    List,
     String,
     Regex,
 )
@@ -59,7 +62,7 @@ def test_feild_set_validate_requred_fields_missing():
 
     with pytest.raises(FieldSet.Error) as e:
         fs.validate({'field2': '2'})
-        assert 'Field "field1" is missing' in str(e)
+    assert 'Field "field1" is missing' in str(e)
 
 
 def test_field_init():
@@ -99,8 +102,8 @@ def test_field_get_settings_validator_raise_configration_error():
 
     with pytest.raises(FieldSet.ConfigurationError) as e:
         f._get_setting_validator('my_setting')
-        assert 'Setting "my_setting" is ' + \
-               'not supported for field "test"' in str(e)
+    assert 'Setting "my_setting" is ' + \
+           'not supported for field "test"' in str(e)
 
 
 def test_field_validate():
@@ -128,7 +131,7 @@ def test_field_validate_raises_on_field_validation():
 
     with pytest.raises(FieldSet.Error) as e:
         f.validate('value')
-        assert field_error_message in str(e)
+    assert field_error_message in str(e)
 
     assert not f._validate_my_setting.called
 
@@ -145,7 +148,7 @@ def test_field_validate_raises_on_setting_validation():
 
     with pytest.raises(FieldSet.Error) as e:
         f.validate('value')
-        assert my_setting_error_message in str(e)
+    assert my_setting_error_message in str(e)
 
     f._validate_field.assert_called_with('value')
 
@@ -170,7 +173,7 @@ def test_integer_field_validate_non_acceptable_value():
     for fail_val in ('should not work', None, '10.10'):
         with pytest.raises(FieldSet.Error) as e:
             f._validate_field(fail_val)
-            assert 'Field "{}" is not a number'.format(f._name) in str(e)
+        assert 'Field "{}" is not a number'.format(f._name) in str(e)
 
 
 def test_integer_field_range_success():
@@ -196,7 +199,7 @@ def test_string_validate_max_length_fail():
     f = String()
     with pytest.raises(FieldSet.Error) as e:
         f._validate_max_length('text1', 4)
-        assert 'Field "{}" is longer than expected'.format(f._name) in str(e)
+    assert 'Field "{}" is longer than expected'.format(f._name) in str(e)
 
 
 def test_string_validate():
@@ -209,7 +212,7 @@ def test_string_validate_not_acceptable_value():
     for fail_val in (10, None, list):
         with pytest.raises(FieldSet.Error) as e:
             f._validate_field(fail_val)
-            assert 'Field "{}" is not a string'.format(f._name) in str(e)
+        assert 'Field "{}" is not a string'.format(f._name) in str(e)
 
 
 def test_regex_validate_pattern():
@@ -240,3 +243,94 @@ def test_regex_validate_pattern_list_pattrens_fails():
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(value, p)
+
+
+def test_boolean_validate_true():
+    f = Boolean()
+    assert f._validate_field(True) is True
+
+
+def test_boolean_validate_false():
+    f = Boolean()
+    assert f._validate_field(False) is False
+
+
+def test_boolean_validate_non_acceptable_value():
+    f = Boolean()
+    f.set_name('foo')
+
+    for fail_val in (10, None, [], {}, 'bar'):
+        with pytest.raises(FieldSet.Error) as e:
+            f._validate_field(fail_val)
+        assert 'Field "foo" is not a boolean' in str(e)
+
+
+def test_list_validate_empty():
+    element_field = mock.Mock()
+    f = List(element_field=element_field)
+    assert f.validate([]) == []
+    assert element_field.mock_calls == []
+
+
+def test_list_validate():
+    element_field = mock.Mock()
+    element_field.validate.side_effect = lambda x: x
+    f = List(element_field=element_field)
+    assert f.validate(['foo', 'bar', 'baz']) == ['foo', 'bar', 'baz']
+    assert element_field.mock_calls == [
+        mock.call.validate('foo'),
+        mock.call.validate('bar'),
+        mock.call.validate('baz'),
+    ]
+
+
+def test_list_validate_fail():
+    def mock_validate(value):
+        element_field.validate.side_effect = FieldSet.Error
+        return value
+
+    element_field = mock.Mock()
+    element_field.validate.side_effect = mock_validate
+    f = List(element_field=element_field)
+    f.set_name('foo')
+
+    with pytest.raises(FieldSet.Error) as e:
+        f.validate(['bar', 7, 'baz'])
+
+    assert 'One of the elements on field "foo" failed to validate' in str(e)
+    assert element_field.mock_calls == [
+        mock.call.validate('bar'),
+        mock.call.validate(7),
+    ]
+
+
+def test_list_non_acceptable_value():
+    element_field = mock.Mock()
+    f = List(element_field=element_field)
+    f.set_name('foo')
+
+    for fail_val in (10, None, {}, 'bar', True):
+        with pytest.raises(FieldSet.Error) as e:
+            f._validate_field(fail_val)
+        assert 'Field "foo" is not a list' in str(e)
+
+    assert element_field.mock_calls == []
+
+
+def test_dict_validate():
+    f = Dict()
+    di = {
+        'foo': 'bar',
+        4: True
+    }
+    assert f._validate_field(di.copy()) == di
+
+
+def test_dict_validate_non_acceptable_value():
+    f = Dict()
+    f.set_name('foo')
+
+    for fail_val in (10, None, [], 'bar', True):
+        with pytest.raises(FieldSet.Error) as e:
+            f._validate_field(fail_val)
+        assert 'Field "foo" is not a dict' in str(e)
