@@ -84,6 +84,7 @@ class Field(object):
         :type **settings: dict
         '''
         self.required = settings.pop('required', False)
+        self.null = settings.pop('null', False)
         self._name = None
         self._settings = settings
 
@@ -131,6 +132,9 @@ class Field(object):
         :returns: validated data
         :rtype: dict
         '''
+        if self.null and field_value is None:
+            return None
+
         res = self._validate_field(field_value)
 
         for setting_name, setting in self._settings.iteritems():
