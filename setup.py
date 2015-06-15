@@ -4,12 +4,12 @@ from distutils.core import setup
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.1.6',
+    version='0.1.7',
     description='Simple RESTful server toolkit',
     author='Walery Jadlowski',
     author_email='bodb.digr@gmail.com',
     url='https://github.com/bodbdigr/restea',
-    download_url='https://github.com/bodbdigr/restea/archive/0.1.6.tar.gz',
+    download_url='https://github.com/bodbdigr/restea/archive/0.1.7.tar.gz',
     keywords=['rest', 'restful', 'restea'],
     license='MIT',
     classifiers=[
