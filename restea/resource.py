@@ -226,8 +226,6 @@ class Resource(object):
             res = method(self, *args, **kwargs)
         except errors.RestError:
             raise
-        except Exception:
-            raise errors.ServerError('Service is not available')
 
         try:
             return self.formatter.serialize(res)

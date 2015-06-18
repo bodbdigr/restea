@@ -325,9 +325,9 @@ def test_process_error_in_method_should_raise_server_error(serialize_mock):
         side_effect=ValueError('I will raise')
     )
 
-    with pytest.raises(errors.ServerError) as e:
+    with pytest.raises(ValueError) as e:
         resource.process()
-    assert 'Service is not available' in str(e)
+    assert 'I will raise' in str(e)
 
 
 @patch.object(formats.JsonFormat, 'serialize')
