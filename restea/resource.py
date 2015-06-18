@@ -1,4 +1,5 @@
 import collections
+import restea.config as config
 import restea.errors as errors
 import restea.formats as formats
 import restea.fields as fields
@@ -227,6 +228,8 @@ class Resource(object):
         except errors.RestError:
             raise
         except Exception:
+            if config.DEBUG:
+                raise
             raise errors.ServerError('Service is not available')
 
         try:

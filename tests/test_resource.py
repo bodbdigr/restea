@@ -327,7 +327,20 @@ def test_process_error_in_method_should_raise_server_error(serialize_mock):
 
     with pytest.raises(errors.ServerError) as e:
         resource.process()
-        assert 'Service is not available' in str(e)
+    assert 'Service is not available' in str(e)
+
+
+@patch('restea.config.DEBUG', True)
+@patch.object(formats.JsonFormat, 'serialize')
+def test_process_error_in_method_should_bubble_up_if_debug(serialize_mock):
+    resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
+    type(resource).list = mock.MagicMock(
+        side_effect=ValueError('I will raise')
+    )
+
+    with pytest.raises(ValueError) as e:
+        resource.process()
+    assert 'I will raise' in str(e)
 
 
 @patch.object(formats.JsonFormat, 'serialize')
