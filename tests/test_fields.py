@@ -1,5 +1,6 @@
 import mock
 import pytest
+import datetime
 from restea.fields import (
     Boolean,
     Dict,
@@ -9,6 +10,7 @@ from restea.fields import (
     List,
     String,
     Regex,
+    DateTime,
 )
 
 
@@ -263,6 +265,22 @@ def test_boolean_validate_non_acceptable_value():
         with pytest.raises(FieldSet.Error) as e:
             f._validate_field(fail_val)
         assert 'Field "foo" is not a boolean' in str(e)
+
+
+def test_datetime_validate_acceptible_value():
+    f = DateTime()
+    expected_date = datetime.datetime(2015, 10, 6, 18, 29, 19)
+    assert f._validate_field(1444148959776) == expected_date
+
+
+def test_datetime_validate_non_acceptable_value():
+    f = DateTime()
+    f.set_name('foo')
+
+    for fail_val in (None, 'foobar', []):
+        with pytest.raises(FieldSet.Error) as e:
+            f._validate_field(fail_val)
+        assert 'Field "foo" can\'t be parsed' in str(e)
 
 
 def test_list_validate_empty():
