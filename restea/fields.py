@@ -1,4 +1,5 @@
 import re
+import datetime
 
 
 class FieldSet(object):
@@ -148,9 +149,9 @@ class Integer(Field):
     '''
     Integer implements field validation for numeric values
     '''
-    def _validate_range(self, field_value, option_value):
+    def _validate_range(self, option_value, field_value):
         '''
-        Validates if field value is not longer then
+        Validates if field value is not longer than
         :param field_name: name of the field to be validated
         :type field_name: str
         :returns: validated value
@@ -183,7 +184,7 @@ class String(Field):
     '''
     String implements field validation for string values
     '''
-    def _validate_max_length(self, field_value, option_value):
+    def _validate_max_length(self, option_value, field_value):
         '''
         Validates if field value is not longer then
         :param field_name: name of the field to be validated
@@ -191,7 +192,7 @@ class String(Field):
         :returns: validated value
         :rtype: str
         '''
-        if len(field_value) > option_value:
+        if field_value and len(field_value) > option_value:
             raise FieldSet.Error(
                 'Field "{}" is longer than expected'.format(self._name)
             )
@@ -216,7 +217,7 @@ class Regex(String):
     '''
     Regex implements field validation using regex pattern
     '''
-    def _validate_pattern(self, field_value, option_value):
+    def _validate_pattern(self, option_value, field_value):
         '''
         Validates if given string matches patten or list of patterns. If at
         least one pattern matches validation is passing
@@ -283,3 +284,16 @@ class Dict(Field):
                 'Field "{}" is not a dict'.format(self._name)
             )
         return field_value
+
+
+class DateTime(Field):
+    '''
+    DateTime implements field validation for timestamps and cast into date obj
+    '''
+    def _validate_field(self, field_value):
+        try:
+            return datetime.datetime.fromtimestamp(field_value / 1000)
+        except ValueError:
+            raise FieldSet.Error(
+                'Field "{}" can\'t be parsed'.format(self._name)
+            )

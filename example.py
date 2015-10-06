@@ -34,9 +34,10 @@ class SiteResource(Resource):
     decorators = [add_dummy_data]
 
     fields = fields.FieldSet(
-        id=fields.Integer(required=True),
+        id=fields.Integer(required=True, range=(1, 100)),
         name=fields.String(max_length=50, required=True),
-        title=fields.String(max_length=150)
+        title=fields.String(max_length=150),
+        created_at=fields.DateTime(null=True),
     )
 
     def list(self):

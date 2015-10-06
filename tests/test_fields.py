@@ -178,27 +178,27 @@ def test_integer_field_validate_non_acceptable_value():
 
 def test_integer_field_range_success():
     f = Integer()
-    assert f._validate_range(1, (1, 10)) == 1
-    assert f._validate_range(5, (1, 10)) == 5
-    assert f._validate_range(10, (1, 10)) == 10
+    assert f._validate_range((1, 10), 1) == 1
+    assert f._validate_range((1, 10), 5) == 5
+    assert f._validate_range((1, 10), 10) == 10
 
 
 def test_integer_field_range_fail():
     f = Integer()
     for fail_val in (100, 0, -5):
         with pytest.raises(FieldSet.Error):
-            f._validate_range(fail_val, (1, 10))
+            f._validate_range((1, 10), fail_val)
 
 
 def test_string_validate_max_length():
     f = String()
-    f._validate_max_length('text', 4)
+    f._validate_max_length(4, 'text')
 
 
 def test_string_validate_max_length_fail():
     f = String()
     with pytest.raises(FieldSet.Error) as e:
-        f._validate_max_length('text1', 4)
+        f._validate_max_length(4, 'text1')
     assert 'Field "{}" is longer than expected'.format(f._name) in str(e)
 
 
@@ -219,14 +219,14 @@ def test_regex_validate_pattern():
     p = r'\d{1,3}'
     f = Regex(patten=p)
     for value in ('123', '0', '10'):
-        assert f._validate_pattern(value, p)[0] == value
+        assert f._validate_pattern(p, value)[0] == value
 
 
 def test_regex_validate_pattern_list_pattrens():
     p = [r'\d{1,3}', r'[a-z]{2,3}']
     f = Regex(patten=p)
     for value in ('100', '0', 'te', 'tes'):
-        assert f._validate_pattern(value, p)[0] == value
+        assert f._validate_pattern(p, value)[0] == value
 
 
 def test_regex_validate_pattern_fail():
@@ -242,7 +242,7 @@ def test_regex_validate_pattern_list_pattrens_fails():
     f = Regex(patten=p)
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
-            f._validate_pattern(value, p)
+            f._validate_pattern(p, value)
 
 
 def test_boolean_validate_true():
