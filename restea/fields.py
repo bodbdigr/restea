@@ -1,6 +1,8 @@
 import re
 import datetime
 
+import six
+
 
 class FieldSet(object):
     '''
@@ -24,7 +26,7 @@ class FieldSet(object):
         :class: `restea.fields.Field`
         '''
         self.fields = {}
-        for name, field in fields.iteritems():
+        for name, field in six.iteritems(fields):
             field.set_name(name)
             self.fields[name] = field
 
@@ -45,7 +47,7 @@ class FieldSet(object):
         :rtype: set
         '''
         return set(
-            name for name, field in self.fields.iteritems()
+            name for name, field in six.iteritems(self.fields)
             if field.required
         )
 
@@ -62,7 +64,7 @@ class FieldSet(object):
         '''
         field_names = self.field_names
         cleaned_data = {}
-        for name, value in data.iteritems():
+        for name, value in six.iteritems(data):
             if name not in field_names:
                 continue
             cleaned_data[name] = self.fields[name].validate(value)
@@ -138,7 +140,7 @@ class Field(object):
 
         res = self._validate_field(field_value)
 
-        for setting_name, setting in self._settings.iteritems():
+        for setting_name, setting in six.iteritems(self._settings):
             validator_method = self._get_setting_validator(setting_name)
             res = validator_method(setting, res)
 
@@ -206,7 +208,7 @@ class String(Field):
         :returns: validated value
         :rtype: str
         '''
-        if not isinstance(field_value, basestring):
+        if not isinstance(field_value, six.string_types):
             raise FieldSet.Error(
                 'Field "{}" is not a string'.format(self._name)
             )
@@ -223,7 +225,7 @@ class Regex(String):
         least one pattern matches validation is passing
         '''
         res = None
-        if hasattr(option_value, '__iter__'):
+        if isinstance(option_value, (list, tuple, set)):
             for pattern in option_value:
                 res = re.findall(pattern, field_value, re.IGNORECASE)
                 if res:
@@ -292,7 +294,7 @@ class DateTime(Field):
     '''
     def _validate_field(self, field_value):
         try:
-            return datetime.datetime.fromtimestamp(field_value / 1000)
+            return datetime.datetime.fromtimestamp(field_value / 1000).replace(microsecond=0)
         except TypeError:
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed'.format(self._name)
