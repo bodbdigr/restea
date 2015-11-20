@@ -5,3 +5,4 @@ htmlcov/*
 MANIFEST
 dist
 build
+*egg-info
