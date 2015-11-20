@@ -1,5 +1,11 @@
-from distutils.core import setup
+import sys
 
+if sys.version_info[0] < 3:
+    from distutils.core import setup
+else:
+    # dirty hack, always use wheel
+    sys.argv.append('bdist_wheel')
+    from setuptools import setup
 
 setup(
     name='restea',
