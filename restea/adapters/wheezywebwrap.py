@@ -10,7 +10,7 @@ from restea.adapters.base import (
 
 class WheezyRequestWrapper(BaseRequestWrapper):
     '''
-    Object wrapping Django request object.
+    Object wrapping Wheezy web request object.
     '''
     @property
     def method(self):
@@ -51,15 +51,15 @@ class WheezyRequestWrapper(BaseRequestWrapper):
 
 class WheezyResourceRouter(BaseResourceWrapper):
     '''
-    Wraps over Django views, implements Django view API and creates routing in
-    the Django urlrouter format
+    Wraps over Wheezy web views, implements Wheezy web view API and creates routing in
+    the Wheezy web urlrouter format
     '''
 
     def wrap_request(self, request, *args, **kwargs):
         '''
         Prepares data and pass control to `restea.Resource` object
 
-        :returns: :class: `django.http.HttpResponse`
+        :returns: :class: `wheezy.http.HTTPResponse`
         '''
         data_format, kwargs = self._get_format_name(kwargs)
         formatter = formats.get_formatter(data_format)
