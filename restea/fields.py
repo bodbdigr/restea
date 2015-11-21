@@ -299,3 +299,47 @@ class DateTime(Field):
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed'.format(self._name)
             )
+
+
+class Email(String):
+    '''
+    Email implements Email datatype -> so we can easily use email from wsgi input in our rest resource
+    '''
+
+    def _validate_field(self, field_value):
+        super(Email, self)._validate_field(field_value)
+
+        message = 'Enter a valid email address in field {}. An example example@example.com'.format(self._name)
+        error = self.__validate_email(field_value)
+        if not error:
+            raise FieldSet.Error(
+                message
+            )
+        return field_value
+
+    def __validate_email(self, field_value):
+
+        user_regex = re.compile(
+            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"  # dot-atom
+            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-\011\013\014\016-\177])*"\Z)',  # quoted-string
+            re.IGNORECASE
+        )
+
+        domain_regex = re.compile(
+            # max length for domain name labels is 63 characters per RFC
+            # 1034
+            r'((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+)(?:[A-Z0-9-]{2,63}(?<!-))\Z',
+            re.IGNORECASE
+        )
+
+        if not field_value or '@' not in field_value:
+            return False
+
+        user_part, domain_part = field_value.rsplit('@', 1)
+
+        if not user_regex.match(user_part):
+            return False
+
+        if not domain_regex.match(domain_part):
+            return False
+        return True
