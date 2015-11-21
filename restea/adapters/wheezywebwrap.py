@@ -47,10 +47,10 @@ class WheezyRequestWrapper(BaseRequestWrapper):
         :returns: string -- value from GET or None if anything is found
         '''
         orig_req = self._original_request
-        stream_body = orig_req.stream_body
+        body = orig_req.body
         ret = (orig_req.query
                if orig_req.method.lower() == 'get'
-               else stream_body)
+               else body)
         return ret
 
 
