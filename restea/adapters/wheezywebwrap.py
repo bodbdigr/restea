@@ -46,7 +46,12 @@ class WheezyRequestWrapper(BaseRequestWrapper):
         :param value: string -- key from GET
         :returns: string -- value from GET or None if anything is found
         '''
-        return self._original_request.form
+        orig_req = self._original_request
+        stream_body = orig_req.stream_body
+        ret = (orig_req.query
+               if orig_req.method.lower() == 'get'
+               else stream_body)
+        return ret
 
 
 class WheezyResourceRouter(BaseResourceWrapper):
