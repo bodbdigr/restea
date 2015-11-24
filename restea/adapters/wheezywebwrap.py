@@ -1,11 +1,13 @@
 import restea.formats as formats
 from wheezy.http import HTTPResponse
 from wheezy.routing import url
+from wheezy.http.comp import bton
 
 from restea.adapters.base import (
     BaseResourceWrapper,
     BaseRequestWrapper,
 )
+from restea.errors import BadRequestError
 
 
 class WheezyRequestWrapper(BaseRequestWrapper):
@@ -47,10 +49,17 @@ class WheezyRequestWrapper(BaseRequestWrapper):
         :returns: string -- value from GET or None if anything is found
         '''
         orig_req = self._original_request
-        body = orig_req.body
-        ret = (orig_req.query
-               if orig_req.method.lower() == 'get'
-               else body)
+        method = orig_req.method.lower()
+        if method == 'get':
+            return orig_req.query
+        environ = orig_req.environ
+        cl = environ['CONTENT_LENGTH']
+        icl = int(cl)
+        if icl > orig_req.options['MAX_CONTENT_LENGTH']:
+            raise BadRequestError('Maximum content length exceeded')
+        fp = environ['wsgi.input']
+        ret = bton(fp.read(icl), orig_req.encoding)
+        fp.seek(0)
         return ret
 
 
