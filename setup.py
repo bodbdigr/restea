@@ -1,5 +1,11 @@
-from distutils.core import setup
+import sys
 
+if sys.version_info[0] < 3:
+    from distutils.core import setup
+else:
+    # dirty hack, always use wheel
+    sys.argv.append('bdist_wheel')
+    from setuptools import setup
 
 setup(
     name='restea',
@@ -20,6 +26,9 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Internet :: WWW/HTTP',
