@@ -11,6 +11,7 @@ from restea.fields import (
     String,
     Regex,
     DateTime,
+    Email
 )
 
 
@@ -352,3 +353,17 @@ def test_dict_validate_non_acceptable_value():
         with pytest.raises(FieldSet.Error) as e:
             f._validate_field(fail_val)
         assert 'Field "foo" is not a dict' in str(e)
+
+
+def test_email_invalid():
+    f = Email()
+    di = 'dsadas'
+    with pytest.raises(FieldSet.Error) as e:
+        f._validate_field(di)
+    assert "Enter a valid email address in field None" in str(e)
+
+
+def test_email_valid():
+    f = Email()
+    di = 'dsadas@example.com'
+    assert f._validate_field(di) == di
