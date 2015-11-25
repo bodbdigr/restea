@@ -294,7 +294,8 @@ class DateTime(Field):
     '''
     def _validate_field(self, field_value):
         try:
-            return datetime.datetime.fromtimestamp(field_value / 1000).replace(microsecond=0)
+            return (datetime.datetime.fromtimestamp(field_value / 1000)
+                    .replace(microsecond=0))
         except TypeError:
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed'.format(self._name)
@@ -303,13 +304,15 @@ class DateTime(Field):
 
 class Email(String):
     '''
-    Email implements Email datatype -> so we can easily use email from wsgi input in our rest resource
+    Email implements Email datatype -> so we can easily use email from wsgi
+    input in our rest resource
     '''
 
     def _validate_field(self, field_value):
         super(Email, self)._validate_field(field_value)
 
-        message = 'Enter a valid email address in field {}. An example example@example.com'.format(self._name)
+        message = ('Enter a valid email address in field {}.'
+                   + ' An example example@example.com'.format(self._name))
         error = self.__validate_email(field_value)
         if not error:
             raise FieldSet.Error(
@@ -320,15 +323,15 @@ class Email(String):
     def __validate_email(self, field_value):
 
         user_regex = re.compile(
-            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"  # dot-atom
-            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-\011\013\014\016-\177])*"\Z)',  # quoted-string
+            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"  # NOQA dot-atom
+            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-\011\013\014\016-\177])*"\Z)',  # NOQA quoted-string
             re.IGNORECASE
         )
 
         domain_regex = re.compile(
             # max length for domain name labels is 63 characters per RFC
             # 1034
-            r'((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+)(?:[A-Z0-9-]{2,63}(?<!-))\Z',
+            r'((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+)(?:[A-Z0-9-]{2,63}(?<!-))\Z',  # NOQA
             re.IGNORECASE
         )
 

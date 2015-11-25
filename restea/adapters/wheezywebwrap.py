@@ -65,8 +65,8 @@ class WheezyRequestWrapper(BaseRequestWrapper):
 
 class WheezyResourceRouter(BaseResourceWrapper):
     '''
-    Wraps over Wheezy web views, implements Wheezy web view API and creates routing in
-    the Wheezy web urlrouter format
+    Wraps over Wheezy web views, implements Wheezy web view API and creates
+    routing in the Wheezy web urlrouter format
     '''
 
     def wrap_request(self, request, *args, **kwargs):
