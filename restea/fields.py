@@ -311,8 +311,7 @@ class Email(String):
     def _validate_field(self, field_value):
         super(Email, self)._validate_field(field_value)
 
-        message = ('Enter a valid email address in field {}.'
-                   + ' An example example@example.com'.format(self._name))
+        message = '''Enter a valid email address in field {}. An example example@example.com'''.format(self._name)  # NOQA
         error = self.__validate_email(field_value)
         if not error:
             raise FieldSet.Error(
