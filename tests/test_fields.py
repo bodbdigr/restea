@@ -10,6 +10,7 @@ from restea.fields import (
     List,
     String,
     Regex,
+    URL,
     DateTime,
 )
 
@@ -245,6 +246,19 @@ def test_regex_validate_pattern_list_pattrens_fails():
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(p, value)
+
+
+def test_url_validate_pattern():
+    f = URL()
+    for value in ('http://google.com/ncr', 'https://www.rebelmouse.com'):
+        assert f._validate_pattern(f.regex, value)[0] == value
+
+
+def test_url_validate_fail():
+    f = URL()
+    for value in ('not_a_url', 'otherthing'):
+        with pytest.raises(FieldSet.Error):
+            f._validate_pattern(f.regex, value)
 
 
 def test_boolean_validate_true():
