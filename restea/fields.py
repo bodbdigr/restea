@@ -218,6 +218,7 @@ class Regex(String):
     Regex implements field validation using regex pattern
     '''
     error_message = 'Field value doesn\'t match required pattern'
+
     def _validate_pattern(self, option_value, field_value):
         '''
         Validates if given string matches patten or list of patterns. If at
@@ -243,13 +244,16 @@ class URL(Regex):
     '''
     regex = (
         r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|'
+        r'[A-Z0-9-]{2,}\.?)|'
         r'localhost|'  # localhost...
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
         r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
         r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$')
+        r'(?:/?|[/?]\S+)$'
+    )
     error_message = 'Field value is not a URL'
+
     def __init__(self, **settings):
         settings['pattern'] = self.regex
         super(URL, self).__init__(**settings)
