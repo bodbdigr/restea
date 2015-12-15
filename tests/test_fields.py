@@ -220,29 +220,36 @@ def test_string_validate_not_acceptable_value():
 
 def test_regex_validate_pattern():
     p = r'\d{1,3}'
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('123', '0', '10'):
         assert f._validate_pattern(p, value)[0] == value
 
 
-def test_regex_validate_pattern_list_pattrens():
+def test_regex_validate_pattern_use_first_found():
+    p = r'\d{1,3}'
+    f = Regex(use_first_found=True, pattern=p)
+    for value in ('123', '0', '10'):
+        assert f._validate_pattern(p, value) == value
+
+
+def test_regex_validate_pattern_list_patterns():
     p = [r'\d{1,3}', r'[a-z]{2,3}']
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('100', '0', 'te', 'tes'):
         assert f._validate_pattern(p, value)[0] == value
 
 
 def test_regex_validate_pattern_fail():
     p = r'\d{3}'
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(value, p)
 
 
-def test_regex_validate_pattern_list_pattrens_fails():
+def test_regex_validate_pattern_list_patterns_fails():
     p = [r'\d{3}', r'[a-z]{100}']
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(p, value)
@@ -252,6 +259,12 @@ def test_url_validate_pattern():
     f = URL()
     for value in ('http://google.com/ncr', 'https://www.rebelmouse.com'):
         assert f._validate_pattern(f.regex, value)[0] == value
+
+
+def test_url_validate_pattern_use_first_found():
+    f = URL(use_first_found=True)
+    for value in ('http://google.com/ncr', 'https://www.rebelmouse.com'):
+        assert f._validate_pattern(f.regex, value) == value
 
 
 def test_url_validate_fail():

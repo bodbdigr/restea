@@ -219,6 +219,10 @@ class Regex(String):
     '''
     error_message = 'Field value doesn\'t match required pattern'
 
+    def __init__(self, **settings):
+        self.__use_first_found = settings.pop('use_first_found', False)
+        super(Regex, self).__init__(**settings)
+
     def _validate_pattern(self, option_value, field_value):
         '''
         Validates if given string matches patten or list of patterns. If at
@@ -235,6 +239,8 @@ class Regex(String):
 
         if not res:
             raise FieldSet.Error(self.error_message)
+        if self.__use_first_found:
+            return res[0]
         return res
 
 
