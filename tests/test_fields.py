@@ -225,6 +225,13 @@ def test_regex_validate_pattern():
         assert f._validate_pattern(p, value)[0] == value
 
 
+def test_regex_validate_pattern_return_first():
+    p = r'\d{1,3}'
+    f = Regex(return_first=True, patten=p)
+    for value in ('123', '0', '10'):
+        assert f._validate_pattern(p, value) == value
+
+
 def test_regex_validate_pattern_list_pattrens():
     p = [r'\d{1,3}', r'[a-z]{2,3}']
     f = Regex(patten=p)
@@ -252,6 +259,12 @@ def test_url_validate_pattern():
     f = URL()
     for value in ('http://google.com/ncr', 'https://www.rebelmouse.com'):
         assert f._validate_pattern(f.regex, value)[0] == value
+
+
+def test_url_validate_pattern_return_first():
+    f = URL(return_first=True)
+    for value in ('http://google.com/ncr', 'https://www.rebelmouse.com'):
+        assert f._validate_pattern(f.regex, value) == value
 
 
 def test_url_validate_fail():

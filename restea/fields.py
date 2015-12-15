@@ -219,6 +219,10 @@ class Regex(String):
     '''
     error_message = 'Field value doesn\'t match required pattern'
 
+    def __init__(self, return_first=False, **settings):
+        self.__return_first = return_first
+        super(Regex, self).__init__(**settings)
+
     def _validate_pattern(self, option_value, field_value):
         '''
         Validates if given string matches patten or list of patterns. If at
@@ -235,6 +239,8 @@ class Regex(String):
 
         if not res:
             raise FieldSet.Error(self.error_message)
+        if self.__return_first:
+            return res[0]
         return res
 
 
@@ -254,9 +260,9 @@ class URL(Regex):
     )
     error_message = 'Field value is not a URL'
 
-    def __init__(self, **settings):
+    def __init__(self, return_first=False, **settings):
         settings['pattern'] = self.regex
-        super(URL, self).__init__(**settings)
+        super(URL, self).__init__(return_first, **settings)
 
 
 class Boolean(Field):
