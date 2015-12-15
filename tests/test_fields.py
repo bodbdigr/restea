@@ -220,36 +220,36 @@ def test_string_validate_not_acceptable_value():
 
 def test_regex_validate_pattern():
     p = r'\d{1,3}'
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('123', '0', '10'):
         assert f._validate_pattern(p, value)[0] == value
 
 
 def test_regex_validate_pattern_return_first():
     p = r'\d{1,3}'
-    f = Regex(return_first=True, patten=p)
+    f = Regex(return_first=True, pattern=p)
     for value in ('123', '0', '10'):
         assert f._validate_pattern(p, value) == value
 
 
 def test_regex_validate_pattern_list_pattrens():
     p = [r'\d{1,3}', r'[a-z]{2,3}']
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('100', '0', 'te', 'tes'):
         assert f._validate_pattern(p, value)[0] == value
 
 
 def test_regex_validate_pattern_fail():
     p = r'\d{3}'
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(value, p)
 
 
-def test_regex_validate_pattern_list_pattrens_fails():
+def test_regex_validate_pattern_list_patterns_fails():
     p = [r'\d{3}', r'[a-z]{100}']
-    f = Regex(patten=p)
+    f = Regex(pattern=p)
     for value in ('not_a_number', 'other12thing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(p, value)
