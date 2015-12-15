@@ -4,3 +4,4 @@ pytest-mock==0.4.3
 coveralls==0.5
 
 flake8==2.3.0
+six==1.9.0
