@@ -232,7 +232,7 @@ def test_regex_validate_pattern_use_first_found():
         assert f._validate_pattern(p, value) == value
 
 
-def test_regex_validate_pattern_list_pattrens():
+def test_regex_validate_pattern_list_patterns():
     p = [r'\d{1,3}', r'[a-z]{2,3}']
     f = Regex(pattern=p)
     for value in ('100', '0', 'te', 'tes'):
