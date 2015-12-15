@@ -225,9 +225,9 @@ def test_regex_validate_pattern():
         assert f._validate_pattern(p, value)[0] == value
 
 
-def test_regex_validate_pattern_return_first():
+def test_regex_validate_pattern_use_first_found():
     p = r'\d{1,3}'
-    f = Regex(return_first=True, pattern=p)
+    f = Regex(use_first_found=True, pattern=p)
     for value in ('123', '0', '10'):
         assert f._validate_pattern(p, value) == value
 
@@ -261,8 +261,8 @@ def test_url_validate_pattern():
         assert f._validate_pattern(f.regex, value)[0] == value
 
 
-def test_url_validate_pattern_return_first():
-    f = URL(return_first=True)
+def test_url_validate_pattern_use_first_found():
+    f = URL(use_first_found=True)
     for value in ('http://google.com/ncr', 'https://www.rebelmouse.com'):
         assert f._validate_pattern(f.regex, value) == value
 
