@@ -296,7 +296,7 @@ def test_boolean_validate_non_acceptable_value():
 
 def test_datetime_validate_acceptible_value():
     f = DateTime()
-    expected_date = datetime.datetime(2015, 10, 6, 18, 29, 19)
+    expected_date = datetime.datetime(2015, 10, 6, 16, 29, 19)
     res = f._validate_field(1444148959776)
     assert res == expected_date
 
