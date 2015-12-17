@@ -319,7 +319,7 @@ class DateTime(Field):
     '''
     def _validate_field(self, field_value):
         try:
-            return datetime.datetime.fromtimestamp(field_value / 1000)
+            return datetime.datetime.fromtimestamp(int(field_value / 1000))
         except TypeError:
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed'.format(self._name)
