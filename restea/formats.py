@@ -1,8 +1,9 @@
-import six
 import datetime
 import time
 import json
+import sys
 
+PY3 = sys.version_info[0] >= 3
 
 _formatter_registry = {}
 
@@ -31,35 +32,33 @@ class FormatterRegistry(type):
         if name != 'BaseFormatter':
             _formatter_registry[cls.name] = cls
 
+BaseFormatter = FormatterRegistry('BaseFormatter', (), {'__doc__': 'BaseFormatter class'})
 
-class BaseFormatter(six.with_metaclass(FormatterRegistry)):
+
+def _unserialize(cls, data):
     '''
-    BaseFormatter is base class for different serialization formats
+    Unserializes incoming data (payload)
+    :param data: raw data to be unserialized
+    :type data: str
+    :returns: respresentation of the data in Python data structure
+    :rtype: dict
     '''
+    raise NotImplementedError
 
-    @classmethod
-    def unserialize(cls, data):
-        '''
-        Unserializes incoming data (payload)
+BaseFormatter.unserialize = classmethod(_unserialize)
 
-        :param data: raw data to be unserialized
-        :type data: str
-        :returns: respresentation of the data in Python data structure
-        :rtype: dict
-        '''
-        raise NotImplementedError
 
-    @classmethod
-    def serialize(cls, data):
-        '''
-        Serializes outgoing data
+def _serialize(cls, data):
+    '''
+    Serializes outgoing data
+    :param data: Python data structure to be serialized
+    :type data: dict, list, str
+    :returns: serialized representation of the data
+    :rtype: str
+    '''
+    raise NotImplementedError
 
-        :param data: Python data structure to be serialized
-        :type data: dict, list, str
-        :returns: serialized representation of the data
-        :rtype: str
-        '''
-        raise NotImplementedError
+BaseFormatter.serialize = classmethod(_serialize)
 
 
 class DateTimeEncoder(json.JSONEncoder):

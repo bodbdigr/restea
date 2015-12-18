@@ -1,4 +1,3 @@
-import six
 import collections
 import restea.errors as errors
 import restea.formats as formats
@@ -56,7 +55,7 @@ class Resource(object):
         :rtype: dict
         '''
         return {
-            k: v for k, v in six.iteritems(dct)
+            k: v for k, v in dct.items()
             if k in self.fields.field_names
         }
 
