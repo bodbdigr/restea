@@ -317,9 +317,15 @@ class DateTime(Field):
     '''
     DateTime implements field validation for timestamps and cast into date obj
     '''
+    def __init__(self, **settings):
+        self.__ms_precision = settings.pop('ms_precision', True)
+        super(DateTime, self).__init__(**settings)
+
     def _validate_field(self, field_value):
         try:
-            return datetime.datetime.utcfromtimestamp(int(field_value / 1000))
+            if self.__ms_precision:
+                field_value /= 1000.00
+            return datetime.datetime.utcfromtimestamp(field_value)
         except TypeError:
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed'.format(self._name)
