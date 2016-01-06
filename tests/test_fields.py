@@ -294,7 +294,7 @@ def test_boolean_validate_non_acceptable_value():
         assert 'Field "foo" is not a boolean' in str(e)
 
 
-def test_datetime_validate_acceptible_value():
+def test_datetime_validate_acceptable_value():
     f = DateTime()
     expected_date = datetime.datetime(2015, 10, 6, 16, 29, 19, 776000)
     res = f._validate_field(1444148959776)
