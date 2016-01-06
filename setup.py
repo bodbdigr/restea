@@ -9,7 +9,7 @@ setup(
     author='Walery Jadlowski',
     author_email='bodb.digr@gmail.com',
     url='https://github.com/bodbdigr/restea',
-    download_url='https://github.com/bodbdigr/restea/archive/0.2.3.tar.gz',
+    download_url='https://github.com/bodbdigr/restea/archive/0.2.4.tar.gz',
     keywords=['rest', 'restful', 'restea'],
     license='MIT',
     classifiers=[
