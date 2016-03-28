@@ -36,14 +36,13 @@ class FieldSet(object):
         '''
         return set(self.fields.keys())
 
-
     def get_required_field_names(self, data):
         '''
         Returns only required field names
         :returns: required field names (from self.fields)
         :rtype: set
         '''
-        def field_is_required(field, data):
+        def is_required_field(field, data):
             if callable(field.required):
                 return field.required(data)
             else:
@@ -51,7 +50,7 @@ class FieldSet(object):
 
         return set(
             name for name, field in self.fields.iteritems()
-            if field_is_required(field, data)
+            if is_required_field(field, data)
         )
 
     def validate(self, data):

@@ -57,6 +57,7 @@ def test_field_set_required_fields_callable():
     assert fs.get_required_field_names({'field2': 0}) == set(['field1'])
     assert fs.get_required_field_names({}) == set([])
 
+
 def test_field_set_validate():
     fs, f1, f2 = create_field_set_helper()
     f1.validate.return_value = 1
