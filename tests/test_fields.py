@@ -11,6 +11,7 @@ from restea.fields import (
     String,
     Regex,
     URL,
+    Email,
     DateTime,
 )
 
@@ -272,6 +273,31 @@ def test_url_validate_fail():
     for value in ('not_a_url', 'otherthing'):
         with pytest.raises(FieldSet.Error):
             f._validate_pattern(f.regex, value)
+
+
+def test_valid_email():
+    email = Email()
+    assert email.validate('t@r.co') == 't@r.co'
+
+
+def test_invalid_email():
+    email = Email()
+
+    with pytest.raises(FieldSet.Error) as error:
+        assert email.validate('foo_bar.com')
+    assert error.value.message == '"foo_bar.com" is not a valid email'
+
+    with pytest.raises(FieldSet.Error) as error:
+        assert email.validate('foo@ bar.com')
+    assert error.value.message == '"foo@ bar.com" is not a valid email'
+
+    with pytest.raises(FieldSet.Error) as error:
+        assert email.validate('foo@barcom')
+    assert error.value.message == '"foo@barcom" is not a valid email'
+
+    with pytest.raises(FieldSet.Error) as error:
+        assert email.validate('foo@bar.c')
+    assert error.value.message == '"foo@bar.c" is not a valid email'
 
 
 def test_boolean_validate_true():

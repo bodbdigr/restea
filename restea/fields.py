@@ -265,6 +265,21 @@ class URL(Regex):
         super(URL, self).__init__(**settings)
 
 
+class Email(String):
+    '''
+    Email implements field validation for emails
+    '''
+    error_message = '"%s" is not a valid email'
+    pattern = r'^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*' \
+        '(\.[a-z]{2,4})$'
+
+    def _validate_field(self, field_value):
+        if not re.match(self.pattern, field_value, re.IGNORECASE):
+            raise FieldSet.Error(self.error_message % field_value)
+
+        return field_value
+
+
 class Boolean(Field):
     '''
     Boolean implements field validation for boolean values
