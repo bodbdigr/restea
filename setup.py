@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.2.5',
+    version='0.2.6',
     description='Simple RESTful server toolkit',
     author='Walery Jadlowski',
     author_email='bodb.digr@gmail.com',
