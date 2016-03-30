@@ -1,5 +1,6 @@
+import datetime
 import json
-import nose
+import pytest
 import mock
 from mock import patch
 from restea import formats
@@ -14,19 +15,13 @@ def test_formatter_registry(registry_mock):
 
 
 def test_base_formatter_serialize_should_be_abstract():
-    nose.tools.assert_raises(
-        NotImplementedError,
-        formats.BaseFormatter.serialize,
-        {}
-    )
+    with pytest.raises(NotImplementedError):
+        formats.BaseFormatter.serialize({})
 
 
 def test_base_formatter_unserialize_should_be_abstract():
-    nose.tools.assert_raises(
-        NotImplementedError,
-        formats.BaseFormatter.unserialize,
-        ''
-    )
+    with pytest.raises(NotImplementedError):
+        formats.BaseFormatter.unserialize('')
 
 
 test_data = {
@@ -37,7 +32,7 @@ test_data = {
         'sub3': {
             'subb4': 3,
             'subb5': [{'a': 1}, {'b': 2}]
-        }
+        },
     }
 }
 
@@ -54,21 +49,21 @@ def test_json_format_unserialize():
 @patch.object(json, 'loads')
 def test_json_format_unserialize_value_error(loads_mock):
     loads_mock.side_effect = ValueError('Wrong data')
-    nose.tools.assert_raises(
-        formats.LoadError,
-        formats.JsonFormat.unserialize,
-        ''
-    )
+    with pytest.raises(formats.LoadError):
+        formats.JsonFormat.unserialize('')
+
+
+def test_json_format_serialize():
+    test_data.update({'date_field': datetime.datetime.now()})
+    expected = json.dumps(test_data, cls=formats.DateTimeEncoder)
+    assert formats.JsonFormat.serialize(test_data) == expected
 
 
 @patch.object(json, 'dumps')
 def test_json_format_serialize_value_error(dumps_mock):
     dumps_mock.side_effect = ValueError('Wrong type object passed')
-    nose.tools.assert_raises(
-        formats.LoadError,
-        formats.JsonFormat.serialize,
-        {}
-    )
+    with pytest.raises(formats.LoadError):
+        formats.JsonFormat.serialize({})
 
 
 def test_get_formatter():

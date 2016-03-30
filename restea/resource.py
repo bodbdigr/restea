@@ -167,7 +167,7 @@ class Resource(object):
             raise errors.BadRequestError(
                 msg.format(self.request.method)
             )
-        return getattr(self, method_name)
+        return getattr(type(self), method_name)
 
     def _get_payload(self):
         '''
@@ -223,11 +223,9 @@ class Resource(object):
         method = self._apply_decorators(method)
 
         try:
-            res = method(*args, **kwargs)
-        except errors.RestError, e:
-            raise e
-        except Exception:
-            raise errors.ServerError('Service is not available')
+            res = method(self, *args, **kwargs)
+        except errors.RestError:
+            raise
 
         try:
             return self.formatter.serialize(res)

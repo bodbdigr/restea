@@ -1,4 +1,5 @@
 import re
+import datetime
 
 
 class FieldSet(object):
@@ -89,6 +90,7 @@ class Field(object):
         :type **settings: dict
         '''
         self.required = settings.pop('required', False)
+        self.null = settings.pop('null', False)
         self._name = None
         self._settings = settings
 
@@ -136,6 +138,9 @@ class Field(object):
         :returns: validated data
         :rtype: dict
         '''
+        if self.null and field_value is None:
+            return None
+
         res = self._validate_field(field_value)
 
         for setting_name, setting in self._settings.iteritems():
@@ -149,9 +154,9 @@ class Integer(Field):
     '''
     Integer implements field validation for numeric values
     '''
-    def _validate_range(self, field_value, option_value):
+    def _validate_range(self, option_value, field_value):
         '''
-        Validates if field value is not longer then
+        Validates if field value is not longer than
         :param field_name: name of the field to be validated
         :type field_name: str
         :returns: validated value
@@ -184,7 +189,7 @@ class String(Field):
     '''
     String implements field validation for string values
     '''
-    def _validate_max_length(self, field_value, option_value):
+    def _validate_max_length(self, option_value, field_value):
         '''
         Validates if field value is not longer then
         :param field_name: name of the field to be validated
@@ -192,7 +197,7 @@ class String(Field):
         :returns: validated value
         :rtype: str
         '''
-        if len(field_value) > option_value:
+        if field_value and len(field_value) > option_value:
             raise FieldSet.Error(
                 'Field "{}" is longer than expected'.format(self._name)
             )
@@ -217,7 +222,13 @@ class Regex(String):
     '''
     Regex implements field validation using regex pattern
     '''
-    def _validate_pattern(self, field_value, option_value):
+    error_message = 'Field value doesn\'t match required pattern'
+
+    def __init__(self, **settings):
+        self.__use_first_found = settings.pop('use_first_found', False)
+        super(Regex, self).__init__(**settings)
+
+    def _validate_pattern(self, option_value, field_value):
         '''
         Validates if given string matches patten or list of patterns. If at
         least one pattern matches validation is passing
@@ -232,7 +243,110 @@ class Regex(String):
             res = re.findall(option_value, field_value, re.IGNORECASE)
 
         if not res:
-            raise FieldSet.Error(
-                'Field value doesn\'t match required pattern'
-            )
+            raise FieldSet.Error(self.error_message)
+        if self.__use_first_found:
+            return res[0]
         return res
+
+
+class URL(Regex):
+    '''
+    URL implements field validation for URLs
+    '''
+    regex = (
+        r'^(?:http|ftp)s?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|'
+        r'[A-Z0-9-]{2,}\.?)|'
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
+        r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$'
+    )
+    error_message = 'Field value is not a URL'
+
+    def __init__(self, **settings):
+        settings['pattern'] = self.regex
+        super(URL, self).__init__(**settings)
+
+
+class Email(String):
+    '''
+    Email implements field validation for emails
+    '''
+    error_message = '"%s" is not a valid email'
+    pattern = r'^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*' \
+        '(\.[a-z]{2,4})$'
+
+    def _validate_field(self, field_value):
+        if not re.match(self.pattern, field_value, re.IGNORECASE):
+            raise FieldSet.Error(self.error_message % field_value)
+
+        return field_value
+
+
+class Boolean(Field):
+    '''
+    Boolean implements field validation for boolean values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, bool):
+            raise FieldSet.Error(
+                'Field "{}" is not a boolean'.format(self._name)
+            )
+        return field_value
+
+
+class List(Field):
+    '''
+    List implements field validation for list values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, list):
+            raise FieldSet.Error(
+                'Field "{}" is not a list'.format(self._name)
+            )
+        return field_value
+
+    def _validate_element_field(self, element_field, field_value):
+        try:
+            return [
+                element_field.validate(el) for el in field_value
+            ]
+        except FieldSet.Error:
+            raise FieldSet.Error(
+                'One of the elements on field "{}" failed to validate'.format(
+                    self._name
+                )
+            )
+
+
+class Dict(Field):
+    '''
+    Dict implements field validation for dict values
+    '''
+    def _validate_field(self, field_value):
+        if not isinstance(field_value, dict):
+            raise FieldSet.Error(
+                'Field "{}" is not a dict'.format(self._name)
+            )
+        return field_value
+
+
+class DateTime(Field):
+    '''
+    DateTime implements field validation for timestamps and cast into date obj
+    '''
+    def __init__(self, **settings):
+        self.__ms_precision = settings.pop('ms_precision', True)
+        super(DateTime, self).__init__(**settings)
+
+    def _validate_field(self, field_value):
+        try:
+            if self.__ms_precision:
+                field_value /= 1000.00
+            return datetime.datetime.utcfromtimestamp(field_value)
+        except TypeError:
+            raise FieldSet.Error(
+                'Field "{}" can\'t be parsed'.format(self._name)
+            )

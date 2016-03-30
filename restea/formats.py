@@ -1,3 +1,5 @@
+import datetime
+import time
 import json
 
 
@@ -60,6 +62,16 @@ class BaseFormatter(object):
         raise NotImplementedError
 
 
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            encoded = int(time.mktime(obj.timetuple()))
+        else:
+            encoded = json.JSONEncoder.default(self, obj)
+
+        return encoded
+
+
 class JsonFormat(BaseFormatter):
 
     name = 'json'
@@ -91,7 +103,7 @@ class JsonFormat(BaseFormatter):
         :rtype: str
         '''
         try:
-            return json.dumps(data)
+            return json.dumps(data, cls=DateTimeEncoder)
         except ValueError:
             raise LoadError
 

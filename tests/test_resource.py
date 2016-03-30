@@ -1,6 +1,6 @@
 import json
 import mock
-import nose
+import pytest
 
 from mock import patch
 
@@ -48,12 +48,10 @@ def test_get_method_name_edit():
 
 def test_get_method_name_edit_without_iden():
     resource, _, _ = create_resource_helper(method='PUT')
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        'Given method requires iden',
-        resource._get_method_name,
-        has_iden=False
-    )
+
+    with pytest.raises(errors.BadRequestError) as e:
+        resource._get_method_name(has_iden=False)
+    assert 'Given method requires iden' in str(e)
 
 
 def test_get_method_name_create():
@@ -63,12 +61,10 @@ def test_get_method_name_create():
 
 def test_get_method_name_create_with_id():
     resource, _, _ = create_resource_helper(method='POST')
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        "Given method shouldn't have iden",
-        resource._get_method_name,
-        has_iden=True
-    )
+
+    with pytest.raises(errors.BadRequestError) as e:
+        resource._get_method_name(has_iden=True)
+    assert "Given method shouldn't have iden" in str(e)
 
 
 def test_get_method_name_delete():
@@ -78,12 +74,10 @@ def test_get_method_name_delete():
 
 def test_get_method_name_unpecefied_method():
     resource, _, _ = create_resource_helper(method='HEAD')
-    nose.tools.assert_raises_regexp(
-        errors.MethodNotAllowedError,
-        'Method "HEAD" is not supported',
-        resource._get_method_name,
-        has_iden=True
-    )
+
+    with pytest.raises(errors.MethodNotAllowedError) as e:
+        resource._get_method_name(has_iden=True)
+    assert 'Method "HEAD" is not supported' in str(e)
 
 
 def test_get_method_name_method_override():
@@ -101,8 +95,8 @@ def test_iden_required_positive():
 
 def test_iden_required_negative():
     resource, _, _ = create_resource_helper()
-    nose.tools.assert_false(resource._iden_required('create'))
-    nose.tools.assert_false(resource._iden_required('list'))
+    assert resource._iden_required('create') is False
+    assert resource._iden_required('list') is False
 
 
 def test_match_responce_to_fields():
@@ -168,7 +162,7 @@ def test_is_valid_formatter_positive():
 
 def test_is_valid_formatter_negative():
     resource, _, _ = create_resource_helper(formatter=None)
-    nose.tools.assert_false(resource._is_valid_formatter)
+    assert resource._is_valid_formatter is False
 
 
 def test_error_formatter_valid():
@@ -183,18 +177,16 @@ def test_error_formatter_with_unknown_formatter():
 
 def test_get_method_valid():
     resource, _, _ = create_resource_helper()
-    resource.create = mock.Mock(return_value={})
+    type(resource).create = mock.Mock(return_value={})
     assert resource._get_method('create') == resource.create
 
 
 def test_get_method_with_not_existing_method():
     resource, _, _ = create_resource_helper()
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        'Method "GET" is not implemented for a given endpoint',
-        resource._get_method,
-        'not_exising_method'
-    )
+
+    with pytest.raises(errors.BadRequestError) as e:
+        resource._get_method('not_exising_method')
+    assert 'Method "GET" is not implemented for a given endpoint' in str(e)
 
 
 def test_get_payload_should_pass_validation():
@@ -216,11 +208,9 @@ def test_get_payload_unexpected_data():
     )
     formatter_mock.unserialize.side_effect = formats.LoadError()
 
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        'Fail to load the data',
-        resource._get_payload,
-    )
+    with pytest.raises(errors.BadRequestError) as e:
+        resource._get_payload()
+    assert 'Fail to load the data' in str(e)
 
 
 def test_get_payload_not_mapable_payload():
@@ -229,11 +219,9 @@ def test_get_payload_not_mapable_payload():
     )
     formatter_mock.unserialize.return_value = ['item']
 
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        'Data should be key -> value structure',
-        resource._get_payload,
-    )
+    with pytest.raises(errors.BadRequestError) as e:
+        resource._get_payload()
+    assert 'Data should be key -> value structure' in str(e)
 
 
 def test_get_payload_field_validation_fails():
@@ -248,11 +236,9 @@ def test_get_payload_field_validation_fails():
         field_error_message
     )
 
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        field_error_message,
-        resource._get_payload,
-    )
+    with pytest.raises(errors.BadRequestError) as e:
+        resource._get_payload()
+    assert field_error_message in str(e)
 
 
 def test_get_payload_field_misconfigured_fields_fails():
@@ -268,11 +254,9 @@ def test_get_payload_field_misconfigured_fields_fails():
     )
     resource.fields.validate.side_effect = conf_error
 
-    nose.tools.assert_raises_regexp(
-        errors.ServerError,
-        configuration_error_message,
-        resource._get_payload,
-    )
+    with pytest.raises(errors.ServerError) as e:
+        resource._get_payload()
+    assert configuration_error_message in str(e)
 
 
 def test_get_payload_field_validation_no_data_empty_payload():
@@ -294,7 +278,7 @@ def test_process_valid(serialize_mock):
     serialize_mock.return_value = mocked_value
 
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.show = mock.Mock(return_value={})
+    type(resource).show = mock.Mock(return_value={})
     res = resource.process(iden=10)
 
     assert res == mocked_value
@@ -305,7 +289,7 @@ def test_process_valid_list(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
 
     serialize_mock.return_value = '[]'
-    resource.list = mock.Mock(return_value=[])
+    type(resource).list = mock.Mock(return_value=[])
     res = resource.process()
     assert res == '[]'
 
@@ -319,34 +303,31 @@ def test_process_wrong_formatter():
     resource, _, _ = create_resource_helper(formatter=None)
     resource.list = mock.MagicMock(return_value='')
 
-    nose.tools.assert_raises_regexp(
-        errors.BadRequestError,
-        'Not recognizable format',
-        resource.process,
-    )
+    with pytest.raises(errors.BadRequestError) as e:
+        resource.process()
+    assert 'Not recognizable format' in str(e)
 
 
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_method_raising_rest_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.Mock(side_effect=errors.RestError)
-    nose.tools.assert_raises_regexp(
-        errors.RestError,
-        'Service is not available',
-        resource.process,
-    )
+    type(resource).list = mock.Mock(side_effect=errors.RestError('test'))
+
+    with pytest.raises(errors.RestError) as e:
+        resource.process()
+    assert 'test' in str(e)
 
 
 @patch.object(formats.JsonFormat, 'serialize')
 def test_process_error_in_method_should_raise_server_error(serialize_mock):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.MagicMock(side_effect=ValueError('I will raise'))
-
-    nose.tools.assert_raises_regexp(
-        errors.ServerError,
-        'Service is not available',
-        resource.process,
+    type(resource).list = mock.MagicMock(
+        side_effect=ValueError('I will raise')
     )
+
+    with pytest.raises(ValueError) as e:
+        resource.process()
+    assert 'I will raise' in str(e)
 
 
 @patch.object(formats.JsonFormat, 'serialize')
@@ -354,14 +335,12 @@ def test_process_error_in_formatter_serialize_should_raise_server_error(
     serialize_mock
 ):
     resource, _, _ = create_resource_helper(formatter=formats.JsonFormat)
-    resource.list = mock.MagicMock(return_value='')
+    type(resource).list = mock.MagicMock(return_value='')
     serialize_mock.side_effect = formats.LoadError()
 
-    nose.tools.assert_raises_regexp(
-        errors.ServerError,
-        "Service can't respond with this format",
-        resource.process,
-    )
+    with pytest.raises(errors.ServerError) as e:
+        resource.process()
+    assert "Service can't respond with this format" in str(e)
 
 
 @patch.object(Resource, 'process')

@@ -1,4 +1,4 @@
-import resttea.formats as formats
+import restea.formats as formats
 from django.http import HttpResponse
 from django.conf.urls import patterns, url
 
@@ -46,7 +46,7 @@ class DjangoRequestWrapper(BaseRequestWrapper):
         :param value: string -- key from GET
         :returns: string -- value from GET or None if anything is found
         '''
-        return self._original_request.request.body
+        return self._original_request.body
 
 
 class DjangoResourceRouter(BaseResourceWrapper):
@@ -86,11 +86,12 @@ class DjangoResourceRouter(BaseResourceWrapper):
         return patterns(
             '',
             url(
-                r'^{}(?:\.(?P<data_format>\w+))$'.format(path),
+                r'^{}(?:\.(?P<data_format>\w+))?$'.format(path),
                 self.wrap_request
             ),
             url(
-                r'^{}{}$(?:\.(?P<data_format>\w+))'.format(path, iden_format),
+                r'^{}/{}(?:\.(?P<data_format>\w+))?$'.format(
+                    path, iden_format),
                 self.wrap_request
             )
         )
