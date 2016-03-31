@@ -37,16 +37,21 @@ class FieldSet(object):
         '''
         return set(self.fields.keys())
 
-    @property
-    def required_field_names(self):
+    def get_required_field_names(self, data):
         '''
         Returns only required field names
         :returns: required field names (from self.fields)
         :rtype: set
         '''
+        def is_required_field(field, data):
+            if callable(field.required):
+                return field.required(data)
+            else:
+                return field.required
+
         return set(
             name for name, field in self.fields.iteritems()
-            if field.required
+            if is_required_field(field, data)
         )
 
     def validate(self, data):
@@ -67,7 +72,7 @@ class FieldSet(object):
                 continue
             cleaned_data[name] = self.fields[name].validate(value)
 
-        for req_field in self.required_field_names:
+        for req_field in self.get_required_field_names(cleaned_data):
             if req_field not in cleaned_data:
                 raise self.Error('Field "{}" is missing'.format(req_field))
 

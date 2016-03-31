@@ -46,7 +46,23 @@ def test_field_set_required_fields():
     fs, f1, f2 = create_field_set_helper()
     f1.required = True
     f2.required = False
-    assert fs.required_field_names == set(['field1'])
+    assert fs.get_required_field_names({}) == set(['field1'])
+
+
+def test_field_set_required_fields_callable():
+    fs, f1, f2 = create_field_set_helper()
+
+    def foo(data):
+        return data.get('field2') == 0
+    f1.required = foo
+    f2.required = False
+    assert fs.get_required_field_names({'field2': 0}) == set(['field1'])
+    assert fs.get_required_field_names({}) == set([])
+
+    f1.required = lambda data: data.get('field2') == 0
+    f2.required = False
+    assert fs.get_required_field_names({'field2': 0}) == set(['field1'])
+    assert fs.get_required_field_names({}) == set([])
 
 
 def test_field_set_validate():
