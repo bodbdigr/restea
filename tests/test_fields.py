@@ -13,6 +13,7 @@ from restea.fields import (
     URL,
     Email,
     DateTime,
+    CommaSeparatedListField,
 )
 
 
@@ -429,3 +430,44 @@ def test_dict_validate_non_acceptable_value():
         with pytest.raises(FieldSet.Error) as e:
             f._validate_field(fail_val)
         assert 'Field "foo" is not a dict' in str(e)
+
+
+def test_comma_separated_list_does_not_allow_more_requests_than_passed_on_constructor():
+    limit_per_request = 10
+    field = CommaSeparatedListField(limit_per_request=limit_per_request, cast_func=int)
+    field.set_name('foo')
+
+    value_list = range(0, limit_per_request + 1)
+    string_list = field.separator.join(map(str, value_list))
+
+    with pytest.raises(FieldSet.Error) as e:
+        field.validate(string_list)
+    assert 'Field "foo" has more items than allowed in the settings' in str(e)
+
+
+def test_comma_separated_list_with_string_values_and_integer_type_cast():
+    field = CommaSeparatedListField(cast_func=int)
+    field.set_name('foo')
+    with pytest.raises(FieldSet.Error) as e:
+        field.validate('a;b;c;d')
+    assert 'Field "foo" can\'t be parsed as a list' in str(e)
+
+
+def test_comma_separated_list_with_custom_separator_not_informed_on_constructor():
+    field = CommaSeparatedListField(cast_func=int)
+    field.set_name('foo')
+    with pytest.raises(FieldSet.Error) as e:
+        field.validate('1,2,3,4')
+    assert 'Field "foo" can\'t be parsed as a list' in str(e)
+
+
+def test_constructor_with_custom_separator():
+    field = CommaSeparatedListField(separator=',')
+    field.set_name('foo')
+    assert field.validate('a,b,c,d') == ['a', 'b', 'c', 'd']
+
+
+def test_constructor_with_custom_cast_and_separator():
+    field = CommaSeparatedListField(cast_func=int, separator=',')
+    field.set_name('foo')
+    assert field.validate('1,2,3,4') == [1, 2, 3, 4]
