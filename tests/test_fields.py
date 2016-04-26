@@ -432,9 +432,11 @@ def test_dict_validate_non_acceptable_value():
         assert 'Field "foo" is not a dict' in str(e)
 
 
-def test_comma_separated_list_does_not_allow_more_requests_than_passed_on_constructor():
+def test_comma_separated_list_does_not_allow_more_requests():
     limit_per_request = 10
-    field = CommaSeparatedListField(limit_per_request=limit_per_request, cast_func=int)
+    field = CommaSeparatedListField(
+        limit_per_request=limit_per_request, cast_func=int
+    )
     field.set_name('foo')
 
     value_list = range(0, limit_per_request + 1)
@@ -453,7 +455,7 @@ def test_comma_separated_list_with_string_values_and_integer_type_cast():
     assert 'Field "foo" can\'t be parsed as a list' in str(e)
 
 
-def test_comma_separated_list_with_custom_separator_not_informed_on_constructor():
+def test_comma_separated_list_custom_separator_not_informed_on_constructor():
     field = CommaSeparatedListField(cast_func=int)
     field.set_name('foo')
     with pytest.raises(FieldSet.Error) as e:

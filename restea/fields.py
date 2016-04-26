@@ -353,7 +353,10 @@ class DateTime(Field):
 
 
 class CommaSeparatedListField(String):
-    def __init__(self, limit_per_request=30, cast_func=str, separator=';', **settings):
+    def __init__(
+            self, limit_per_request=30, cast_func=str, separator=';',
+            **settings
+    ):
         super(CommaSeparatedListField, self).__init__(**settings)
         self.limit_per_request = limit_per_request
         self.cast_func = cast_func
@@ -366,7 +369,9 @@ class CommaSeparatedListField(String):
         """
         try:
             super(CommaSeparatedListField, self)._validate_field(field_value)
-            parsed_list = map(self.cast_func, field_value.split(self.separator))
+            parsed_list = map(
+                self.cast_func, field_value.split(self.separator)
+            )
         except (TypeError, ValueError, FieldSet.Error):
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed as a list'.format(self._name)
@@ -374,7 +379,8 @@ class CommaSeparatedListField(String):
 
         if len(parsed_list) > self.limit_per_request:
             raise FieldSet.Error(
-                'Field "{}" has more items than allowed in the settings'.format(self._name)
+                'Field "{}" has more items than allowed '
+                'in the settings'.format(self._name)
             )
 
         return parsed_list
