@@ -17,7 +17,7 @@ sites = [
         'rating': random.randint(1, 5),
         'domain': 'www.my_domain_for_site_{}.com'.format(i),
         'anoher_field_out_of_scope': 'this one shouldn\'t be seen'
-    } for i in xrange(1, 20)
+    } for i in range(1, 20)
 ]
 
 

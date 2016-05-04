@@ -1,5 +1,6 @@
 import re
 import datetime
+import restea.compat
 
 
 class FieldSet(object):
@@ -24,7 +25,7 @@ class FieldSet(object):
         :class: `restea.fields.Field`
         '''
         self.fields = {}
-        for name, field in fields.iteritems():
+        for name, field in fields.items():
             field.set_name(name)
             self.fields[name] = field
 
@@ -50,7 +51,7 @@ class FieldSet(object):
                 return field.required
 
         return set(
-            name for name, field in self.fields.iteritems()
+            name for name, field in self.fields.items()
             if is_required_field(field, data)
         )
 
@@ -67,7 +68,7 @@ class FieldSet(object):
         '''
         field_names = self.field_names
         cleaned_data = {}
-        for name, value in data.iteritems():
+        for name, value in data.items():
             if name not in field_names:
                 continue
             cleaned_data[name] = self.fields[name].validate(value)
@@ -143,7 +144,7 @@ class Field(object):
 
         res = self._validate_field(field_value)
 
-        for setting_name, setting in self._settings.iteritems():
+        for setting_name, setting in self._settings.items():
             validator_method = self._get_setting_validator(setting_name)
             res = validator_method(setting, res)
 
@@ -211,7 +212,7 @@ class String(Field):
         :returns: validated value
         :rtype: str
         '''
-        if not isinstance(field_value, basestring):
+        if not isinstance(field_value, restea.compat.string):
             raise FieldSet.Error(
                 'Field "{}" is not a string'.format(self._name)
             )
@@ -234,13 +235,13 @@ class Regex(String):
         least one pattern matches validation is passing
         '''
         res = None
-        if hasattr(option_value, '__iter__'):
+        if isinstance(option_value, restea.compat.string):
+            res = re.findall(option_value, field_value, re.IGNORECASE)
+        else:
             for pattern in option_value:
                 res = re.findall(pattern, field_value, re.IGNORECASE)
                 if res:
                     break
-        else:
-            res = re.findall(option_value, field_value, re.IGNORECASE)
 
         if not res:
             raise FieldSet.Error(self.error_message)
@@ -369,9 +370,9 @@ class CommaSeparatedListField(String):
         """
         try:
             super(CommaSeparatedListField, self)._validate_field(field_value)
-            parsed_list = map(
+            parsed_list = list(map(
                 self.cast_func, field_value.split(self.separator)
-            )
+            ))
         except (TypeError, ValueError, FieldSet.Error):
             raise FieldSet.Error(
                 'Field "{}" can\'t be parsed as a list'.format(self._name)
