@@ -18,7 +18,7 @@ class FlaskRequestWrapper(BaseRequestWrapper):
 
         :returns: string -- raw value of payload sent to server
         '''
-        return self._original_request.data
+        return self._original_request.data.decode()
 
     @property
     def method(self):
