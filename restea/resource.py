@@ -33,7 +33,8 @@ class Resource(object):
         if not hasattr(self, 'fields'):
             self.fields = fields.FieldSet()
 
-        self.request = request
+        self.request = request._original_request
+        self.__request_wrapper = request
         self.formatter = formatter
 
     def _iden_required(self, method_name):
@@ -99,8 +100,8 @@ class Resource(object):
         :returns: name of the resource method name
         :rtype: str
         '''
-        method = self.request.method
-        method = self.request.headers.get(
+        method = self.__request_wrapper.method
+        method = self.__request_wrapper.headers.get(
             'HTTP_X_HTTP_METHOD_OVERRIDE',
             method
         )
@@ -108,7 +109,9 @@ class Resource(object):
 
         if not method_name:
             raise errors.MethodNotAllowedError(
-                'Method "{}" is not supported'.format(self.request.method)
+                'Method "{}" is not supported'.format(
+                    self.__request_wrapper.method
+                )
             )
 
         if isinstance(method_name, tuple):
@@ -167,7 +170,7 @@ class Resource(object):
         if not method_exists:
             msg = 'Method "{}" is not implemented for a given endpoint'
             raise errors.BadRequestError(
-                msg.format(self.request.method)
+                msg.format(self.__request_wrapper.method)
             )
         return getattr(type(self), method_name)
 
@@ -181,11 +184,13 @@ class Resource(object):
         :returns: validated data passed to resource
         :rtype: dict
         '''
-        if not self.request.data:
+        if not self.__request_wrapper.data:
             return {}
 
         try:
-            payload_data = self.formatter.unserialize(self.request.data)
+            payload_data = self.formatter.unserialize(
+                self.__request_wrapper.data
+            )
         except formats.LoadError:
             raise errors.BadRequestError(
                 'Fail to load the data'
