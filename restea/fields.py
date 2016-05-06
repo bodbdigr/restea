@@ -1,6 +1,7 @@
+from past.builtins import basestring
+
 import re
 import datetime
-import restea.compat
 
 
 class FieldSet(object):
@@ -212,7 +213,7 @@ class String(Field):
         :returns: validated value
         :rtype: str
         '''
-        if not isinstance(field_value, restea.compat.string):
+        if not isinstance(field_value, basestring):
             raise FieldSet.Error(
                 'Field "{}" is not a string'.format(self._name)
             )
@@ -235,7 +236,7 @@ class Regex(String):
         least one pattern matches validation is passing
         '''
         res = None
-        if isinstance(option_value, restea.compat.string):
+        if isinstance(option_value, basestring):
             res = re.findall(option_value, field_value, re.IGNORECASE)
         else:
             for pattern in option_value:

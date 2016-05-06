@@ -1,8 +1,9 @@
+from __future__ import unicode_literals
+
 import collections
 import restea.errors as errors
 import restea.formats as formats
 import restea.fields as fields
-import restea.compat
 
 
 # TODO: Add fileds with validation
@@ -248,7 +249,7 @@ class Resource(object):
                 self.formatter.content_type
             )
         except errors.RestError as e:
-            err = {'error': restea.compat.string(e)}
+            err = {'error': str(e)}
             if e.code:
                 err.update({'code': e.code})
 
