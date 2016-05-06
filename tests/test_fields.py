@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import mock
 import pytest
 import datetime
@@ -302,19 +304,19 @@ def test_invalid_email():
 
     with pytest.raises(FieldSet.Error) as error:
         assert email.validate('foo_bar.com')
-    assert error.value.message == '"foo_bar.com" is not a valid email'
+    assert str(error.value) == '"foo_bar.com" is not a valid email'
 
     with pytest.raises(FieldSet.Error) as error:
         assert email.validate('foo@ bar.com')
-    assert error.value.message == '"foo@ bar.com" is not a valid email'
+    assert str(error.value) == '"foo@ bar.com" is not a valid email'
 
     with pytest.raises(FieldSet.Error) as error:
         assert email.validate('foo@barcom')
-    assert error.value.message == '"foo@barcom" is not a valid email'
+    assert str(error.value) == '"foo@barcom" is not a valid email'
 
     with pytest.raises(FieldSet.Error) as error:
         assert email.validate('foo@bar.c')
-    assert error.value.message == '"foo@bar.c" is not a valid email'
+    assert str(error.value) == '"foo@bar.c" is not a valid email'
 
 
 def test_boolean_validate_true():

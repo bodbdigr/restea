@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import collections
 import restea.errors as errors
 import restea.formats as formats
@@ -55,7 +57,7 @@ class Resource(object):
         :rtype: dict
         '''
         return {
-            k: v for k, v in dct.iteritems()
+            k: v for k, v in dct.items()
             if k in self.fields.field_names
         }
 
@@ -196,10 +198,10 @@ class Resource(object):
 
         try:
             return self.fields.validate(payload_data)
-        except fields.FieldSet.Error, e:
-            raise errors.BadRequestError(e.message)
-        except fields.FieldSet.ConfigurationError, e:
-            raise errors.ServerError(e.message)
+        except fields.FieldSet.Error as e:
+            raise errors.BadRequestError(e)
+        except fields.FieldSet.ConfigurationError as e:
+            raise errors.ServerError(e)
 
     def process(self, *args, **kwargs):
         '''
@@ -246,8 +248,8 @@ class Resource(object):
                 200,
                 self.formatter.content_type
             )
-        except errors.RestError, e:
-            err = {'error': e.message}
+        except errors.RestError as e:
+            err = {'error': str(e)}
             if e.code:
                 err.update({'code': e.code})
 

@@ -1,6 +1,7 @@
 import datetime
-import time
 import json
+import future.utils
+import time
 
 
 _formatter_registry = {}
@@ -31,11 +32,10 @@ class FormatterRegistry(type):
             _formatter_registry[cls.name] = cls
 
 
-class BaseFormatter(object):
+class BaseFormatter(future.utils.with_metaclass(FormatterRegistry, object)):
     '''
     BaseFormatter is base class for different serialization formats
     '''
-    __metaclass__ = FormatterRegistry
 
     @classmethod
     def unserialize(cls, data):
