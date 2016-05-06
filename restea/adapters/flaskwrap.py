@@ -111,5 +111,6 @@ class FlaskResourceWrapper(BaseResourceWrapper):
             self.app.add_url_rule(
                 route,
                 view_func=self.wrap_request,
-                methods=map(str.upper, self._resource_class.method_map)
+                methods=[m.upper() for m in self._resource_class.method_map]
+
             )
