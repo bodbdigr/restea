@@ -246,8 +246,8 @@ class Resource(object):
                 200,
                 self.formatter.content_type
             )
-        except errors.RestError, e:
-            err = {'error': e.message}
+        except errors.RestError as e:
+            err = {'error': str(e)}
             if e.code:
                 err.update({'code': e.code})
 
