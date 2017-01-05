@@ -83,7 +83,7 @@ class Resource(object):
         if not hasattr(self, 'decorators'):
             return method
 
-        for decorator in self.decorators:
+        for decorator in reversed(self.decorators):
             method = decorator(method)
 
         return method
