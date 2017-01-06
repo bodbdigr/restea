@@ -131,11 +131,14 @@ def test_apply_decorators():
     resource, _, _ = create_resource_helper()
     resource.create = mock.MagicMock(return_value={
         'test1': 0,
-        'test2': 0
+        'test2': 0,
     })
+
+    order = []
 
     def dummy_decorator1(func):
         def wrapper(*a, **kw):
+            order.append('dummy_decorator1')
             res = func(*a, **kw)
             res['test1'] = 'replacement #1'
             return res
@@ -143,6 +146,7 @@ def test_apply_decorators():
 
     def dummy_decorator2(func):
         def wrapper(*a, **kw):
+            order.append('dummy_decorator2')
             res = func(*a, **kw)
             res['test2'] = 'replacement #2'
             return res
@@ -153,6 +157,7 @@ def test_apply_decorators():
 
     expected_values = {'test1': 'replacement #1', 'test2': 'replacement #2'}
     assert resource.create() == expected_values
+    assert order == ['dummy_decorator1', 'dummy_decorator2']
 
 
 def test_is_valid_formatter_positive():
