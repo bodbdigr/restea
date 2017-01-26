@@ -12,16 +12,16 @@ setup(
     download_url='https://github.com/bodbdigr/restea/archive/0.3.2.tar.gz',
     keywords=['rest', 'restful', 'restea'],
     install_requires=[
-        'future==0.16.0',
+        'future==0.15.2',
     ],
     setup_requires=[
         'pytest-runner',
     ],
     tests_require=[
-        'pytest==3.0.6',
-        'pytest-cov==2.4.0',
-        'pytest-mock==1.5.0',
-        'coveralls==1.1',
+        'pytest==2.9.1',
+        'pytest-cov==1.8.1',
+        'pytest-mock==0.4.3',
+        'coveralls==0.5',
     ],
     license='MIT',
     classifiers=[
