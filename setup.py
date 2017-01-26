@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 
 setup(
@@ -11,6 +11,16 @@ setup(
     url='https://github.com/bodbdigr/restea',
     download_url='https://github.com/bodbdigr/restea/archive/0.3.2.tar.gz',
     keywords=['rest', 'restful', 'restea'],
+    install_requires=[
+        'future==0.16.0',
+    ],
+    setup_requires=['pytest-runner'],
+    tests_require=[
+        'pytest==3.0.6',
+        'pytest-cov==2.4.0',
+        'pytest-mock==1.5.0',
+        'coveralls==1.1',
+    ],
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',

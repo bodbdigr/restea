@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "pypy"
 install:
-  - pip install -r requirements.txt
+  - pip install .
 sudo: false
-script: make test
+script: python setup.py test
 after_success: coveralls

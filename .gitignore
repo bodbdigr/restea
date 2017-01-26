@@ -5,3 +5,5 @@ htmlcov/*
 MANIFEST
 dist
 .cache
+.eggs/*
+restea.egg-info/*

@@ -1,9 +1,0 @@
-pytest==2.9.1
-pytest-cov==1.8.1
-pytest-mock==0.4.3
-coveralls==0.5
-future==0.15.2
-Paste==2.0.3
-
-flake8==2.3.0
-
