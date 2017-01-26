@@ -3,7 +3,8 @@ python:
   - "2.7"
   - "pypy"
 before_install:
-  - pip install --upgrade pytest coveralls
+  - pip install --upgrade flake8 pytest coveralls
+  - flake8 .
 install:
   - pip install .
 sudo: false
