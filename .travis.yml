@@ -6,5 +6,6 @@ before_install:
   - pip install --upgrade pytest
 install:
   - pip install .
+sudo: false
 script: python setup.py test
 after_success: coveralls
