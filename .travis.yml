@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "pypy"
 before_install:
-  - sudo apt-get remove python-pytest
+  - pip install --upgrade pytest
 install:
   - pip install .
 script: python setup.py test
