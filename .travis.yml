@@ -6,6 +6,5 @@ before_install:
   - sudo apt-get remove pytest
 install:
   - pip install .
-sudo: false
 script: python setup.py test
 after_success: coveralls
