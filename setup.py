@@ -14,7 +14,9 @@ setup(
     install_requires=[
         'future==0.16.0',
     ],
-    setup_requires=['pytest-runner'],
+    setup_requires=[
+        'pytest-runner',
+    ],
     tests_require=[
         'pytest==3.0.6',
         'pytest-cov==2.4.0',
