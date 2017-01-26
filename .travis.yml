@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "pypy"
 before_install:
-  - pip install --upgrade pytest
+  - pip install --upgrade pytest coveralls
 install:
   - pip install .
 sudo: false

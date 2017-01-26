@@ -30,7 +30,6 @@ setup(
         'pytest==3.0.6',
         'pytest-cov==2.4.0',
         'pytest-mock==1.5.0',
-        'coveralls==1.1',
     ],
     license='MIT',
     classifiers=[
