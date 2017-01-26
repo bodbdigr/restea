@@ -9,18 +9,15 @@ try:
 finally:
     f.close()
 
-version = '0.3.3'
-
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version=version,
+    version='0.3.3',
     description='Simple RESTful server toolkit',
     long_description=readme_content,
     author='Walery Jadlowski',
     author_email='bodb.digr@gmail.com',
     url='https://github.com/bodbdigr/restea',
-    download_url='https://github.com/bodbdigr/restea/archive/{}.tar.gz'.format(version),
     keywords=['rest', 'restful', 'restea'],
     install_requires=[
         'future==0.16.0',
