@@ -278,7 +278,7 @@ class Email(String):
     '''
     error_message = '"%s" is not a valid email'
     pattern = r'^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*' \
-        '(\.[a-z]{2,4})$'
+        '(\.[a-z]{2,16})$'
 
     def _validate_field(self, field_value):
         if not re.match(self.pattern, field_value, re.IGNORECASE):
