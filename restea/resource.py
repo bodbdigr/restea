@@ -22,6 +22,8 @@ class Resource(object):
         'delete': 'delete',
     }
 
+    custom_actions = ()
+
     def __init__(self, request, formatter):
         '''
         :param request: request wrapper object
@@ -88,7 +90,7 @@ class Resource(object):
 
         return method
 
-    def _get_method_name(self, has_iden):
+    def _get_method_name(self, has_iden, action):
         '''
         Return resource object based on the HTTP method
 
@@ -104,6 +106,12 @@ class Resource(object):
             'HTTP_X_HTTP_METHOD_OVERRIDE',
             method
         )
+
+        if action:
+            if method.lower() == 'post' and action in self.custom_actions:
+                return action
+            raise errors.NotFoundError('Action {} not found'.format(action))
+
         method_name = self.method_map.get(method.lower())
 
         if not method_name:
@@ -220,7 +228,10 @@ class Resource(object):
 
         self.payload = self._get_payload()
 
-        method_name = self._get_method_name(has_iden=bool(args or kwargs))
+        method_name = self._get_method_name(
+            has_iden=bool('iden' in kwargs),
+            action=kwargs.pop('action', None)
+        )
         method = self._get_method(method_name)
         method = self._apply_decorators(method)
 

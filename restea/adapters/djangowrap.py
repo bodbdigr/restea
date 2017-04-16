@@ -75,7 +75,7 @@ class DjangoResourceRouter(BaseResourceWrapper):
             status=status_code
         )
 
-    def get_routes(self, path='', iden_format='(?P<iden>\w+)'):
+    def get_routes(self, path='', iden_format='(?P<iden>\w+?)'):
         '''
         Prepare routes for the given REST resource
 
@@ -90,8 +90,8 @@ class DjangoResourceRouter(BaseResourceWrapper):
                 self.wrap_request
             ),
             url(
-                r'^{}/{}(?:\.(?P<data_format>\w+))?$'.format(
+                r'^{}/{}(?:/(?P<action>\w+))?(?:\.(?P<data_format>\w+))?$'.format(
                     path, iden_format),
                 self.wrap_request
-            )
+            ),
         )
