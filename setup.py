@@ -12,7 +12,7 @@ finally:
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.3.4',
+    version='0.3.5',
     description='Simple RESTful server toolkit',
     long_description=readme_content,
     author='Walery Jadlowski',
