@@ -391,6 +391,6 @@ def test_dispatch_exception(process_mock):
 
     resource.process.side_effect = errors.NotFoundError('Not found!', code=101, redirect_path='/search')
     res, status, content_type = resource.dispatch()
-    assert res == json.dumps({'error': 'Not found!', 'code': 101, 'redirect_path': '/search'})
+    assert set(json.loads(res).items()) == set({'error': 'Not found!', 'code': 101, 'redirect_path': '/search'}.items())
     assert status == 404
     assert content_type == 'application/json'
