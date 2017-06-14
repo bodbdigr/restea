@@ -388,7 +388,7 @@ def test_dispatch_exception(process_mock):
     )
     res, status, content_type = resource.dispatch()
     expected_response = {'error': 'Unauthorized!', 'login_path': '/login'}
-    assert res == json.dumps(expected_response)
+    assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 403
     assert content_type == 'application/json'
 
