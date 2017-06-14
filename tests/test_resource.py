@@ -379,7 +379,8 @@ def test_dispatch_exception(process_mock):
 
     resource.process.side_effect = errors.BadRequestError('Wrong!', code=101)
     res, status, content_type = resource.dispatch()
-    assert res == json.dumps({'error': 'Wrong!', 'code': 101})
+    expected_response = {'error': 'Wrong!', 'code': 101}
+    assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 400
     assert content_type == 'application/json'
 
