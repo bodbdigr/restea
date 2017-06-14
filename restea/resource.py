@@ -251,8 +251,6 @@ class Resource(object):
         except errors.RestError as e:
             err = e.info.copy()
             err['error'] = str(e)
-            if e.code:
-                err['code'] = e.code
 
             return (
                 self._error_formatter.serialize(err),
