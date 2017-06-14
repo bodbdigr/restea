@@ -383,14 +383,22 @@ def test_dispatch_exception(process_mock):
     assert status == 400
     assert content_type == 'application/json'
 
-    resource.process.side_effect = errors.ForbiddenError('Unauthorized!', login_path='/login')
+    resource.process.side_effect = errors.ForbiddenError(
+        'Unauthorized!', login_path='/login'
+    )
     res, status, content_type = resource.dispatch()
-    assert res == json.dumps({'error': 'Unauthorized!', 'login_path': '/login'})
+    expected_response = {'error': 'Unauthorized!', 'login_path': '/login'}
+    assert res == json.dumps(expected_response)
     assert status == 403
     assert content_type == 'application/json'
 
-    resource.process.side_effect = errors.NotFoundError('Not found!', code=101, redirect_path='/search')
+    resource.process.side_effect = errors.NotFoundError(
+        'Not found!', code=101, redirect_path='/search'
+    )
     res, status, content_type = resource.dispatch()
-    assert set(json.loads(res).items()) == set({'error': 'Not found!', 'code': 101, 'redirect_path': '/search'}.items())
+    expected_response = {
+        'error': 'Not found!', 'code': 101, 'redirect_path': '/search'
+    }
+    assert (set(json.loads(res).items()) == set(expected_response.items()))
     assert status == 404
     assert content_type == 'application/json'
