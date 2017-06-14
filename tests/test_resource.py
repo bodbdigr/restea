@@ -370,16 +370,27 @@ def test_dispatch_valid(process_mock):
 @patch.object(Resource, 'process')
 def test_dispatch_exception(process_mock):
     resource, _, _ = create_resource_helper()
-    resource.process.side_effect = errors.ServerError('Error!')
 
+    resource.process.side_effect = errors.ServerError('Error!')
     res, status, content_type = resource.dispatch()
     assert res == json.dumps({'error': 'Error!'})
     assert status == 503
     assert content_type == 'application/json'
 
     resource.process.side_effect = errors.BadRequestError('Wrong!', code=101)
-
     res, status, content_type = resource.dispatch()
     assert res == json.dumps({'error': 'Wrong!', 'code': 101})
     assert status == 400
+    assert content_type == 'application/json'
+
+    resource.process.side_effect = errors.ForbiddenError('Unauthorized!', login_path='/login')
+    res, status, content_type = resource.dispatch()
+    assert res == json.dumps({'error': 'Unauthorized!', 'login_path': '/login'})
+    assert status == 403
+    assert content_type == 'application/json'
+
+    resource.process.side_effect = errors.NotFoundError('Not found!', code=101, redirect_path='/search')
+    res, status, content_type = resource.dispatch()
+    assert res == json.dumps({'error': 'Not found!', 'code': 101, 'redirect_path': '/search'})
+    assert status == 404
     assert content_type == 'application/json'

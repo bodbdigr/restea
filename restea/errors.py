@@ -3,7 +3,7 @@ class RestError(Exception):
     Base rest error exception class. All other rest exceptions are derived from
     RestError.
     '''
-    def __init__(self, message, code=None):
+    def __init__(self, message, code=None, **info):
         '''
         :param message: string -- exception message
         :param code: int -- error code, optional. used to be returned
@@ -11,6 +11,7 @@ class RestError(Exception):
         '''
         super(RestError, self).__init__(message)
         self.code = code
+        self.info = info
 
 
 class BadRequestError(RestError):
