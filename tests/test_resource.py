@@ -399,6 +399,6 @@ def test_dispatch_exception(process_mock):
     expected_response = {
         'error': 'Not found!', 'code': 101, 'redirect_path': '/search'
     }
-    assert (set(json.loads(res).items()) == set(expected_response.items()))
+    assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 404
     assert content_type == 'application/json'
