@@ -12,7 +12,7 @@ finally:
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.3.4',
+    version='0.3.5',
     description='Simple RESTful server toolkit',
     long_description=readme_content,
     author='Walery Jadlowski',
@@ -26,9 +26,9 @@ setup(
         'pytest-runner',
     ],
     tests_require=[
-        'pytest==3.0.7',
-        'pytest-cov==2.4.0',
-        'pytest-mock==1.5.0',
+        'pytest',
+        'pytest-cov',
+        'pytest-mock',
     ],
     license='MIT',
     classifiers=[

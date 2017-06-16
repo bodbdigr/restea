@@ -249,9 +249,8 @@ class Resource(object):
                 self.formatter.content_type
             )
         except errors.RestError as e:
-            err = {'error': str(e)}
-            if e.code:
-                err.update({'code': e.code})
+            err = e.info.copy()
+            err['error'] = str(e)
 
             return (
                 self._error_formatter.serialize(err),
