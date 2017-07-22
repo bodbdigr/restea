@@ -224,10 +224,7 @@ class Resource(object):
         method = self._get_method(method_name)
         method = self._apply_decorators(method)
 
-        try:
-            res = method(self, *args, **kwargs)
-        except errors.RestError:
-            raise
+        res = method(self, *args, **kwargs)
 
         try:
             return self.formatter.serialize(res)
