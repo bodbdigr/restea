@@ -199,9 +199,9 @@ class Resource(object):
         try:
             return self.fields.validate(payload_data)
         except fields.FieldSet.Error as e:
-            raise errors.BadRequestError(e)
+            raise errors.BadRequestError(str(e))
         except fields.FieldSet.ConfigurationError as e:
-            raise errors.ServerError(e)
+            raise errors.ServerError(str(e))
 
     def process(self, *args, **kwargs):
         '''
@@ -224,10 +224,7 @@ class Resource(object):
         method = self._get_method(method_name)
         method = self._apply_decorators(method)
 
-        try:
-            res = method(self, *args, **kwargs)
-        except errors.RestError:
-            raise
+        res = method(self, *args, **kwargs)
 
         try:
             return self.formatter.serialize(res)
