@@ -203,6 +203,12 @@ class Resource(object):
         except fields.FieldSet.ConfigurationError as e:
             raise errors.ServerError(str(e))
 
+    def prepare(self):
+        pass
+
+    def finish(self, response):
+        return response
+
     def process(self, *args, **kwargs):
         '''
         Processes the payload and maps HTTP method to resource object methods
@@ -220,14 +226,18 @@ class Resource(object):
 
         self.payload = self._get_payload()
 
+        self.prepare()
+
         method_name = self._get_method_name(has_iden=bool(args or kwargs))
         method = self._get_method(method_name)
         method = self._apply_decorators(method)
 
-        res = method(self, *args, **kwargs)
+        response = method(self, *args, **kwargs)
+
+        response = self.finish(response)
 
         try:
-            return self.formatter.serialize(res)
+            return self.formatter.serialize(response)
         except formats.LoadError:
             raise errors.ServerError('Service can\'t respond with this format')
 
