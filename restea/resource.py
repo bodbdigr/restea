@@ -6,8 +6,6 @@ import restea.formats as formats
 import restea.fields as fields
 
 
-# TODO: Add fileds with validation
-
 class Resource(object):
     '''
     Resource class implements all the logic of mapping HTTP methods to
