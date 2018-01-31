@@ -4,7 +4,7 @@ f = open("README.rst")
 try:
     try:
         readme_content = f.read()
-    except:
+    except Exception:
         readme_content = ""
 finally:
     f.close()
