@@ -99,7 +99,7 @@ def test_iden_required_negative():
     assert resource._iden_required('list') is False
 
 
-def test_match_responce_to_fields():
+def test_match_response_to_fields():
     resource, _, _ = create_resource_helper()
     resource.fields = mock.Mock(spec=fields.FieldSet)
     resource.fields.field_names = ['name1', 'name2', 'name3']
@@ -107,10 +107,10 @@ def test_match_responce_to_fields():
     data = {'name1': 1, 'name2': 2, 'name3': 3, 'name4': 4}
     expected_data = {'name1': 1, 'name2': 2, 'name3': 3}
 
-    assert resource._match_responce_to_fields(data) == expected_data
+    assert resource._match_response_to_fields(data) == expected_data
 
 
-def test_match_responce_list_to_fields():
+def test_match_response_list_to_fields():
     resource, _, _ = create_resource_helper()
     resource.fields = mock.Mock(spec=fields.FieldSet)
     resource.fields.field_names = ['name1', 'name2', 'name3']

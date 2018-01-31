@@ -47,7 +47,7 @@ class Resource(object):
         '''
         return method_name not in ('list', 'create')
 
-    def _match_responce_to_fields(self, dct):
+    def _match_response_to_fields(self, dct):
         '''
         Filters output from rest method to return only fields matching
         self.fields
@@ -70,7 +70,7 @@ class Resource(object):
         :returns: filtered list, with no values out of self.fields
         :rtype: generator
         '''
-        return (self._match_responce_to_fields(item) for item in lst)
+        return (self._match_response_to_fields(item) for item in lst)
 
     def _apply_decorators(self, method):
         '''
