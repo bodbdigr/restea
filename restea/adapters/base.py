@@ -68,9 +68,8 @@ class BaseResourceWrapper(object):
 
         if not self.request_wrapper_class:
             raise RuntimeError(
-                '{} must have a request_wrapper_class attribute configured.'.format(
-                    self.__class__.__name__
-                )
+                '{} must have a request_wrapper_class attribute '
+                'configured.'.format(self.__class__.__name__)
             )
 
         resource = self._resource_class(
