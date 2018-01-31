@@ -1,3 +1,4 @@
+import collections
 import json
 import mock
 import pytest
@@ -408,3 +409,38 @@ def test_dispatch_exception(process_mock):
     assert status == 404
     assert content_type == 'application/json'
     assert headers == {}
+
+
+@patch.object(Resource, 'process')
+def test_headers_with_sucess_response(process_mock):
+    expected_result = json.dumps({'res': 'response from process'})
+    expected_content_type = 'content/type'
+
+    formatter_mock = mock.Mock(content_type=expected_content_type)
+    resource, _, _ = create_resource_helper(formatter=formatter_mock)
+
+    process_mock.return_value = expected_result
+    resource.set_header('foo', 'bar')
+    resource.clear_header('baz')
+    res, status, content_type, headers = resource.dispatch()
+
+    resource.process.assert_called_with()
+    assert res == expected_result
+    assert status == 200
+    assert content_type == expected_content_type
+    assert headers == collections.OrderedDict([('foo', 'bar')])
+
+
+@patch.object(Resource, 'process')
+def test_headers_with_failed_response(process_mock):
+    resource, _, _ = create_resource_helper()
+
+    resource.process.side_effect = errors.ServerError('Error!')
+    resource.set_header('foo', 'bar')
+    resource.clear_header('baz')
+    res, status, content_type, headers = resource.dispatch()
+
+    assert res == json.dumps({'error': 'Error!'})
+    assert status == 503
+    assert content_type == 'application/json'
+    assert headers == collections.OrderedDict([('foo', 'bar')])
