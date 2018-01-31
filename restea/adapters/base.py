@@ -45,6 +45,7 @@ class BaseResourceWrapper(object):
         :param content: string -- response content
         :param status_code: string -- response status code
         :param content_type: string -- response content type
+        :param headers: string -- response headers
         '''
         raise NotImplementedError
 
