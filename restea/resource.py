@@ -245,7 +245,7 @@ class Resource(object):
             return (
                 self.process(*args, **kwargs),
                 200,
-                self.formatter.content_type
+                self.formatter.content_type,
                 self._response_headers
             )
         except errors.RestError as e:
