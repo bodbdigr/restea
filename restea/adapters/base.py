@@ -47,6 +47,7 @@ class BaseRequestWrapper(object):
         :param original_request: -- request object from the given framework
         '''
         self._original_request = original_request
+        self._response_headers = defaultdict(list)
 
     @property
     def data(self):
@@ -83,3 +84,32 @@ class BaseRequestWrapper(object):
         :returns: string -- value from GET or None if anything is found
         '''
         raise NotImplementedError
+
+    def set_header(self, name, value):
+        '''
+        Sets the given response header name and value.
+
+        :param name: string -- header name
+        :param value: string -- header value
+        '''
+        self._response_headers[name] = [value]
+
+    def add_header(self, name, value):
+        '''
+        Sets the given response header name and value.
+
+        Unlike `set_header`, `add_header` may be called multiple times
+        to return multiple values for the same header.
+
+        :param name: string -- header name
+        :param value: string -- header value
+        '''
+        self._response_headers[name].add(value)
+
+    def clear_header(self, name):
+        '''
+        Clears an outgoing header, removing all values.
+
+        :param name: string -- header name
+        '''
+        self._response_headers.pop(name, None)
