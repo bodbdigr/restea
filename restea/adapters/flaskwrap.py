@@ -1,5 +1,4 @@
 import flask
-import restea.formats as formats
 
 from restea.adapters.base import (
     BaseResourceWrapper,

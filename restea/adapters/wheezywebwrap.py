@@ -1,4 +1,3 @@
-import restea.formats as formats
 from wheezy.http import HTTPResponse
 from wheezy.routing import url
 from wheezy.http.comp import bton
