@@ -36,7 +36,7 @@ class Resource(object):
 
         self.request = request
         self.formatter = formatter
-        self._response_headers = {}
+        self._response_headers = collections.OrderedDict()
 
     def _iden_required(self, method_name):
         '''
