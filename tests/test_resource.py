@@ -359,12 +359,13 @@ def test_dispatch_valid(process_mock):
     resource, _, _ = create_resource_helper(formatter=formatter_mock)
 
     process_mock.return_value = expected_result
-    res, status, content_type = resource.dispatch(*args, **kwargs)
+    res, status, content_type, headers = resource.dispatch(*args, **kwargs)
 
     resource.process.assert_called_with(*args, **kwargs)
     assert res == expected_result
     assert status == 200
     assert content_type == expected_content_type
+    assert headers == {}
 
 
 @patch.object(Resource, 'process')
@@ -372,34 +373,38 @@ def test_dispatch_exception(process_mock):
     resource, _, _ = create_resource_helper()
 
     resource.process.side_effect = errors.ServerError('Error!')
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     assert res == json.dumps({'error': 'Error!'})
     assert status == 503
     assert content_type == 'application/json'
+    assert headers == {}
 
     resource.process.side_effect = errors.BadRequestError('Wrong!', code=101)
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     expected_response = {'error': 'Wrong!', 'code': 101}
     assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 400
     assert content_type == 'application/json'
+    assert headers == {}
 
     resource.process.side_effect = errors.ForbiddenError(
         'Unauthorized!', login_path='/login'
     )
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     expected_response = {'error': 'Unauthorized!', 'login_path': '/login'}
     assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 403
     assert content_type == 'application/json'
+    assert headers == {}
 
     resource.process.side_effect = errors.NotFoundError(
         'Not found!', code=101, redirect_path='/search'
     )
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     expected_response = {
         'error': 'Not found!', 'code': 101, 'redirect_path': '/search'
     }
     assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 404
     assert content_type == 'application/json'
+    assert headers == {}
