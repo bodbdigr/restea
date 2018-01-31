@@ -9,7 +9,7 @@ class BaseResourceWrapper(object):
 
     def __init__(self, resource_class):
         '''
-        :param resource_class: :class: `restea.resource.Resource` -- resource
+        :param resource_class: :class:`restea.resource.Resource` -- resource
         object implementing methods to create/edit/delete data
         '''
         self._resource_class = resource_class
@@ -65,6 +65,13 @@ class BaseResourceWrapper(object):
         data_format, kwargs = self._get_format_name(kwargs)
         formatter = formats.get_formatter(data_format)
         original_request = self.get_original_request(*args, **kwargs)
+
+        if not self.request_wrapper_class:
+            raise RuntimeError(
+                '{} must have a request_wrapper_class attribute configured.'.format(
+                    self.__class__.__name__
+                )
+            )
 
         resource = self._resource_class(
             self.request_wrapper_class(original_request), formatter
