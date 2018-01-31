@@ -269,7 +269,7 @@ class Resource(object):
 
     def clear_header(self, name):
         '''
-        Clears an outgoing header, removing all values.
+        Clears an outgoing header.
         :param name: string -- header name
         '''
         self._response_headers.pop(name, None)
