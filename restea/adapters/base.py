@@ -38,7 +38,7 @@ class BaseResourceWrapper(object):
         '''
         raise NotImplementedError
 
-    def prepare_response(self, content, status_code, content_type):
+    def prepare_response(self, content, status_code, content_type, headers):
         '''
         Prepares response for the given arguments.
 
@@ -75,9 +75,9 @@ class BaseResourceWrapper(object):
         resource = self._resource_class(
             self.request_wrapper_class(original_request), formatter
         )
-        response = resource.dispatch(*args, **kwargs)
+        response_tuple = resource.dispatch(*args, **kwargs)
 
-        return self.prepare_response(*response)
+        return self.prepare_response(*response_tuple)
 
 
 class BaseRequestWrapper(object):

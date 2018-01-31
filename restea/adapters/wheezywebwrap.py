@@ -70,10 +70,12 @@ class WheezyResourceRouter(BaseResourceWrapper):
     '''
     request_wrapper_class = WheezyRequestWrapper
 
-    def prepare_response(self, content, status_code, content_type):
+    def prepare_response(self, content, status_code, content_type, headers):
         response = HTTPResponse(content_type=content_type)
         response.write(content)
         response.status_code = status_code
+        for name, value in headers.iteritems():
+            response.headers.append((name, value))
         return response
 
     def get_routes(self, path='', iden_format='(?P<iden>\w+)'):

@@ -65,12 +65,15 @@ class FlaskResourceWrapper(BaseResourceWrapper):
     def get_original_request(*args, **kwargs):
         return flask.request
 
-    def prepare_response(self, content, status_code, content_type):
-        return flask.Response(
+    def prepare_response(self, content, status_code, content_type, headers):
+        response = flask.Response(
             content,
             mimetype=content_type,
             status=status_code
         )
+        for name, value in headers.iteritems():
+            response.headers[name] = value
+        return response
 
     def __adapt_path(self, path):
         '''

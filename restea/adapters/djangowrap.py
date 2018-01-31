@@ -55,12 +55,15 @@ class DjangoResourceRouter(BaseResourceWrapper):
     '''
     request_wrapper_class = DjangoRequestWrapper
 
-    def prepare_response(self, content, status_code, content_type):
-        return HttpResponse(
+    def prepare_response(self, content, status_code, content_type, headers):
+        response = HttpResponse(
             content,
             content_type=content_type,
             status=status_code
         )
+        for name, value in headers.iteritems():
+            response[name] = value
+        return response
 
     def get_routes(self, path='', iden_format='(?P<iden>\w+)'):
         '''
