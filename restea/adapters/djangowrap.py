@@ -54,23 +54,11 @@ class DjangoResourceRouter(BaseResourceWrapper):
     Wraps over Django views, implements Django view API and creates routing in
     the Django urlrouter format
     '''
+    request_wrapper_class = DjangoRequestWrapper
 
-    def wrap_request(self, request, *args, **kwargs):
-        '''
-        Prepares data and pass control to `restea.Resource` object
-
-        :returns: :class: `django.http.HttpResponse`
-        '''
-        data_format, kwargs = self._get_format_name(kwargs)
-        formatter = formats.get_formatter(data_format)
-
-        resource = self._resource_class(
-            DjangoRequestWrapper(request), formatter
-        )
-        res, status_code, content_type = resource.dispatch(*args, **kwargs)
-
+    def prepare_response(self, content, status_code, content_type):
         return HttpResponse(
-            res,
+            content,
             content_type=content_type,
             status=status_code
         )

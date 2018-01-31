@@ -53,6 +53,8 @@ class FlaskResourceWrapper(BaseResourceWrapper):
     FlaskResourceWrapper implements Flask 'view' API for the
     `restea.Resource` object, aka routing and return values in Flask format
     '''
+    request_wrapper_class = FlaskRequestWrapper
+
     @property
     def app(self):
         '''
@@ -61,22 +63,12 @@ class FlaskResourceWrapper(BaseResourceWrapper):
         '''
         return flask.current_app
 
-    def wrap_request(self, *args, **kwargs):
-        '''
-        Prepares data and pass control to `restea.Resource` object
+    def get_original_request(*args, **kwargs):
+        return flask.request
 
-        :returns: :class: `flask.Response`
-        '''
-        data_format, kwargs = self._get_format_name(kwargs)
-        formatter = formats.get_formatter(data_format)
-
-        resource = self._resource_class(
-            FlaskRequestWrapper(flask.request), formatter
-        )
-        res, status_code, content_type = resource.dispatch(*args, **kwargs)
-
+    def prepare_response(self, content, status_code, content_type):
         return flask.Response(
-            res,
+            content,
             mimetype=content_type,
             status=status_code
         )

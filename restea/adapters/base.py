@@ -5,6 +5,8 @@ class BaseResourceWrapper(object):
     '''
     BaseResourceWrapper is added to have common interface between frameworks.
     '''
+    request_wrapper_class = None
+
     def __init__(self, resource_class):
         '''
         :param resource_class: :class: `restea.resource.Resource` -- resource
@@ -35,6 +37,41 @@ class BaseResourceWrapper(object):
         used to make composite identifier
         '''
         raise NotImplementedError
+
+    def prepare_response(self, content, status_code, content_type):
+        '''
+        Prepares response for the given arguments.
+
+        :param content: string -- response content
+        :param status_code: string -- response status code
+        :param content_type: string -- response content type
+        '''
+        raise NotImplementedError
+
+    def get_original_request(*args, **kwargs):
+        '''
+        Returns the original request object.
+
+        This method receives all arguments that the `wrap_request` method
+        receives and return the first argument as is commonly received.
+        '''
+        return args[0]
+
+    def wrap_request(self, *args, **kwargs):
+        '''
+        Prepares data and pass control to `restea.Resource` object
+        :returns: Response object for corresponding framework
+        '''
+        data_format, kwargs = self._get_format_name(kwargs)
+        formatter = formats.get_formatter(data_format)
+        original_request = self.get_original_request(*args, **kwargs)
+
+        resource = self._resource_class(
+            self.request_wrapper_class(original_request), formatter
+        )
+        response = resource.dispatch(*args, **kwargs)
+
+        return self.prepare_response(*response)
 
 
 class BaseRequestWrapper(object):
