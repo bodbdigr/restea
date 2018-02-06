@@ -4,7 +4,7 @@ f = open("README.rst")
 try:
     try:
         readme_content = f.read()
-    except:
+    except Exception:
         readme_content = ""
 finally:
     f.close()
@@ -12,7 +12,7 @@ finally:
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.3.6',
+    version='0.3.7',
     description='Simple RESTful server toolkit',
     long_description=readme_content,
     author='Walery Jadlowski',
