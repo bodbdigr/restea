@@ -1,3 +1,4 @@
+import collections
 import json
 import mock
 import pytest
@@ -99,7 +100,7 @@ def test_iden_required_negative():
     assert resource._iden_required('list') is False
 
 
-def test_match_responce_to_fields():
+def test_match_response_to_fields():
     resource, _, _ = create_resource_helper()
     resource.fields = mock.Mock(spec=fields.FieldSet)
     resource.fields.field_names = ['name1', 'name2', 'name3']
@@ -107,10 +108,10 @@ def test_match_responce_to_fields():
     data = {'name1': 1, 'name2': 2, 'name3': 3, 'name4': 4}
     expected_data = {'name1': 1, 'name2': 2, 'name3': 3}
 
-    assert resource._match_responce_to_fields(data) == expected_data
+    assert resource._match_response_to_fields(data) == expected_data
 
 
-def test_match_responce_list_to_fields():
+def test_match_response_list_to_fields():
     resource, _, _ = create_resource_helper()
     resource.fields = mock.Mock(spec=fields.FieldSet)
     resource.fields.field_names = ['name1', 'name2', 'name3']
@@ -359,12 +360,13 @@ def test_dispatch_valid(process_mock):
     resource, _, _ = create_resource_helper(formatter=formatter_mock)
 
     process_mock.return_value = expected_result
-    res, status, content_type = resource.dispatch(*args, **kwargs)
+    res, status, content_type, headers = resource.dispatch(*args, **kwargs)
 
     resource.process.assert_called_with(*args, **kwargs)
     assert res == expected_result
     assert status == 200
     assert content_type == expected_content_type
+    assert headers == {}
 
 
 @patch.object(Resource, 'process')
@@ -372,34 +374,73 @@ def test_dispatch_exception(process_mock):
     resource, _, _ = create_resource_helper()
 
     resource.process.side_effect = errors.ServerError('Error!')
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     assert res == json.dumps({'error': 'Error!'})
     assert status == 503
     assert content_type == 'application/json'
+    assert headers == {}
 
     resource.process.side_effect = errors.BadRequestError('Wrong!', code=101)
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     expected_response = {'error': 'Wrong!', 'code': 101}
     assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 400
     assert content_type == 'application/json'
+    assert headers == {}
 
     resource.process.side_effect = errors.ForbiddenError(
         'Unauthorized!', login_path='/login'
     )
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     expected_response = {'error': 'Unauthorized!', 'login_path': '/login'}
     assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 403
     assert content_type == 'application/json'
+    assert headers == {}
 
     resource.process.side_effect = errors.NotFoundError(
         'Not found!', code=101, redirect_path='/search'
     )
-    res, status, content_type = resource.dispatch()
+    res, status, content_type, headers = resource.dispatch()
     expected_response = {
         'error': 'Not found!', 'code': 101, 'redirect_path': '/search'
     }
     assert set(json.loads(res).items()) == set(expected_response.items())
     assert status == 404
     assert content_type == 'application/json'
+    assert headers == {}
+
+
+@patch.object(Resource, 'process')
+def test_headers_with_sucess_response(process_mock):
+    expected_result = json.dumps({'res': 'response from process'})
+    expected_content_type = 'content/type'
+
+    formatter_mock = mock.Mock(content_type=expected_content_type)
+    resource, _, _ = create_resource_helper(formatter=formatter_mock)
+
+    process_mock.return_value = expected_result
+    resource.set_header('foo', 'bar')
+    resource.clear_header('baz')
+    res, status, content_type, headers = resource.dispatch()
+
+    resource.process.assert_called_with()
+    assert res == expected_result
+    assert status == 200
+    assert content_type == expected_content_type
+    assert headers == collections.OrderedDict([('foo', 'bar')])
+
+
+@patch.object(Resource, 'process')
+def test_headers_with_failed_response(process_mock):
+    resource, _, _ = create_resource_helper()
+
+    resource.process.side_effect = errors.ServerError('Error!')
+    resource.set_header('foo', 'bar')
+    resource.clear_header('baz')
+    res, status, content_type, headers = resource.dispatch()
+
+    assert res == json.dumps({'error': 'Error!'})
+    assert status == 503
+    assert content_type == 'application/json'
+    assert headers == collections.OrderedDict([('foo', 'bar')])

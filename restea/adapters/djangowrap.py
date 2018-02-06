@@ -1,4 +1,3 @@
-import restea.formats as formats
 from django.http import HttpResponse
 from django.conf.urls import patterns, url
 
@@ -54,26 +53,17 @@ class DjangoResourceRouter(BaseResourceWrapper):
     Wraps over Django views, implements Django view API and creates routing in
     the Django urlrouter format
     '''
+    request_wrapper_class = DjangoRequestWrapper
 
-    def wrap_request(self, request, *args, **kwargs):
-        '''
-        Prepares data and pass control to `restea.Resource` object
-
-        :returns: :class: `django.http.HttpResponse`
-        '''
-        data_format, kwargs = self._get_format_name(kwargs)
-        formatter = formats.get_formatter(data_format)
-
-        resource = self._resource_class(
-            DjangoRequestWrapper(request), formatter
-        )
-        res, status_code, content_type = resource.dispatch(*args, **kwargs)
-
-        return HttpResponse(
-            res,
+    def prepare_response(self, content, status_code, content_type, headers):
+        response = HttpResponse(
+            content,
             content_type=content_type,
             status=status_code
         )
+        for name, value in headers.iteritems():
+            response[name] = value
+        return response
 
     def get_routes(self, path='', iden_format='(?P<iden>\w+)'):
         '''

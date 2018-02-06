@@ -1,5 +1,4 @@
 import flask
-import restea.formats as formats
 
 from restea.adapters.base import (
     BaseResourceWrapper,
@@ -53,6 +52,8 @@ class FlaskResourceWrapper(BaseResourceWrapper):
     FlaskResourceWrapper implements Flask 'view' API for the
     `restea.Resource` object, aka routing and return values in Flask format
     '''
+    request_wrapper_class = FlaskRequestWrapper
+
     @property
     def app(self):
         '''
@@ -61,25 +62,18 @@ class FlaskResourceWrapper(BaseResourceWrapper):
         '''
         return flask.current_app
 
-    def wrap_request(self, *args, **kwargs):
-        '''
-        Prepares data and pass control to `restea.Resource` object
+    def get_original_request(*args, **kwargs):
+        return flask.request
 
-        :returns: :class: `flask.Response`
-        '''
-        data_format, kwargs = self._get_format_name(kwargs)
-        formatter = formats.get_formatter(data_format)
-
-        resource = self._resource_class(
-            FlaskRequestWrapper(flask.request), formatter
-        )
-        res, status_code, content_type = resource.dispatch(*args, **kwargs)
-
-        return flask.Response(
-            res,
+    def prepare_response(self, content, status_code, content_type, headers):
+        response = flask.Response(
+            content,
             mimetype=content_type,
             status=status_code
         )
+        for name, value in headers.iteritems():
+            response.headers[name] = value
+        return response
 
     def __adapt_path(self, path):
         '''

@@ -1,4 +1,3 @@
-import restea.formats as formats
 from wheezy.http import HTTPResponse
 from wheezy.routing import url
 from wheezy.http.comp import bton
@@ -69,26 +68,14 @@ class WheezyResourceRouter(BaseResourceWrapper):
     Wraps over Wheezy web views, implements Wheezy web view API and creates
     routing in the Wheezy web urlrouter format
     '''
+    request_wrapper_class = WheezyRequestWrapper
 
-    def wrap_request(self, request, *args, **kwargs):
-        '''
-        Prepares data and pass control to `restea.Resource` object
-
-        :returns: :class: `wheezy.http.HTTPResponse`
-        '''
-        data_format, kwargs = self._get_format_name(kwargs)
-        formatter = formats.get_formatter(data_format)
-
-        resource = self._resource_class(
-            WheezyRequestWrapper(request), formatter
-        )
-        res, status_code, content_type = resource.dispatch(*args, **kwargs)
-
-        response = HTTPResponse(
-            content_type=content_type,
-        )
-        response.write(res)
+    def prepare_response(self, content, status_code, content_type, headers):
+        response = HTTPResponse(content_type=content_type)
+        response.write(content)
         response.status_code = status_code
+        for name, value in headers.iteritems():
+            response.headers.append((name, value))
         return response
 
     def get_routes(self, path='', iden_format='(?P<iden>\w+)'):

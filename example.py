@@ -44,6 +44,7 @@ class SiteResource(Resource):
         return sites
 
     def show(self, iden):
+        self.set_header('Access-Control-Allow-Origin', '*')
         try:
             return sites[int(iden)]
         except IndexError:

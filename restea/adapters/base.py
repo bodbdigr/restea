@@ -5,9 +5,11 @@ class BaseResourceWrapper(object):
     '''
     BaseResourceWrapper is added to have common interface between frameworks.
     '''
+    request_wrapper_class = None
+
     def __init__(self, resource_class):
         '''
-        :param resource_class: :class: `restea.resource.Resource` -- resource
+        :param resource_class: :class:`restea.resource.Resource` -- resource
         object implementing methods to create/edit/delete data
         '''
         self._resource_class = resource_class
@@ -35,6 +37,48 @@ class BaseResourceWrapper(object):
         used to make composite identifier
         '''
         raise NotImplementedError
+
+    def prepare_response(self, content, status_code, content_type, headers):
+        '''
+        Prepares response for the given arguments.
+
+        :param content: string -- response content
+        :param status_code: string -- response status code
+        :param content_type: string -- response content type
+        :param headers: string -- response headers
+        '''
+        raise NotImplementedError
+
+    def get_original_request(*args, **kwargs):
+        '''
+        Returns the original request object.
+
+        This method receives all arguments that the `wrap_request` method
+        receives and return the first argument as is commonly received.
+        '''
+        return args[0]
+
+    def wrap_request(self, *args, **kwargs):
+        '''
+        Prepares data and pass control to `restea.Resource` object
+        :returns: Response object for corresponding framework
+        '''
+        data_format, kwargs = self._get_format_name(kwargs)
+        formatter = formats.get_formatter(data_format)
+        original_request = self.get_original_request(*args, **kwargs)
+
+        if not self.request_wrapper_class:
+            raise RuntimeError(
+                '{} must have a request_wrapper_class attribute '
+                'configured.'.format(self.__class__.__name__)
+            )
+
+        resource = self._resource_class(
+            self.request_wrapper_class(original_request), formatter
+        )
+        response_tuple = resource.dispatch(*args, **kwargs)
+
+        return self.prepare_response(*response_tuple)
 
 
 class BaseRequestWrapper(object):

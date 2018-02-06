@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import collections
+
 import restea.errors as errors
 import restea.formats as formats
 import restea.fields as fields
@@ -33,6 +34,7 @@ class Resource(object):
 
         self.request = request
         self.formatter = formatter
+        self._response_headers = collections.OrderedDict()
 
     def _iden_required(self, method_name):
         '''
@@ -45,7 +47,7 @@ class Resource(object):
         '''
         return method_name not in ('list', 'create')
 
-    def _match_responce_to_fields(self, dct):
+    def _match_response_to_fields(self, dct):
         '''
         Filters output from rest method to return only fields matching
         self.fields
@@ -68,7 +70,7 @@ class Resource(object):
         :returns: filtered list, with no values out of self.fields
         :rtype: generator
         '''
-        return (self._match_responce_to_fields(item) for item in lst)
+        return (self._match_response_to_fields(item) for item in lst)
 
     def _apply_decorators(self, method):
         '''
@@ -251,7 +253,8 @@ class Resource(object):
             return (
                 self.process(*args, **kwargs),
                 200,
-                self.formatter.content_type
+                self.formatter.content_type,
+                self._response_headers
             )
         except errors.RestError as e:
             err = e.info.copy()
@@ -260,5 +263,21 @@ class Resource(object):
             return (
                 self._error_formatter.serialize(err),
                 e.http_code,
-                self._error_formatter.content_type
+                self._error_formatter.content_type,
+                self._response_headers
             )
+
+    def set_header(self, name, value):
+        '''
+        Sets the given response header name and value.
+        :param name: string -- header name
+        :param value: string -- header value
+        '''
+        self._response_headers[name] = value
+
+    def clear_header(self, name):
+        '''
+        Clears an outgoing header.
+        :param name: string -- header name
+        '''
+        self._response_headers.pop(name, None)
