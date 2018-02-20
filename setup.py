@@ -1,13 +1,8 @@
 from setuptools import setup
 
-f = open("README.rst")
-try:
-    try:
-        readme_content = f.read()
-    except Exception:
-        readme_content = ""
-finally:
-    f.close()
+readme_content = ''
+with open("README.rst") as f:
+    readme_content = f.read()
 
 setup(
     name='restea',
