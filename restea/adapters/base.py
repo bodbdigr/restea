@@ -49,7 +49,7 @@ class BaseResourceWrapper(object):
         '''
         raise NotImplementedError
 
-    def get_original_request(*args, **kwargs):
+    def get_original_request(self, *args, **kwargs):
         '''
         Returns the original request object.
 
