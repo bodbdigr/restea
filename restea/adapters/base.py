@@ -78,6 +78,10 @@ class BaseResourceWrapper(object):
         )
         response_tuple = resource.dispatch(*args, **kwargs)
 
+        if len(response_tuple) == 3:
+            # For backward compatibility, it adds an empty dict as headers
+            response_tuple += ({},)
+
         return self.prepare_response(*response_tuple)
 
 

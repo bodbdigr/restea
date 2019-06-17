@@ -245,7 +245,8 @@ class Resource(object):
         Dispatches the request and handles exception to return data, status
         and content type
 
-        :returns: 3 element tuple: result, HTTP status code and content type
+        :returns: 4-element tuple: result, HTTP status code, content type, and
+        headers
         :rtype: tuple
         '''
         try:
