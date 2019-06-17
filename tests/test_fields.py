@@ -59,20 +59,25 @@ def test_field_set_required_fields_callable():
         return data.get('field2') == 0
     f1.required = foo
     f2.required = False
-    assert fs.get_required_field_names('create', {'field2': 0}) == set(['field1'])
-    assert fs.get_required_field_names('create', {}) == set([])
+    required_field_names = fs.get_required_field_names('create', {'field2': 0})
+    assert required_field_names == set(['field1'])
+    required_field_names = fs.get_required_field_names('create', {})
+    assert required_field_names == set([])
 
     f1.required = lambda method_name, data: data.get('field2') == 0
     f2.required = False
-    assert fs.get_required_field_names('create', {'field2': 0}) == set(['field1'])
-    assert fs.get_required_field_names('create', {}) == set([])
+    required_field_names = fs.get_required_field_names('create', {'field2': 0})
+    assert required_field_names == set(['field1'])
+    required_field_names = fs.get_required_field_names('create', {})
+    assert required_field_names == set([])
 
 
 def test_field_set_validate():
     fs, f1, f2 = create_field_set_helper()
     f1.validate.return_value = 1
     f2.validate.return_value = 2
-    res = fs.validate('create', {'field1': '1', 'field2': '2', 'field3': 'wrong!'})
+    payload = {'field1': '1', 'field2': '2', 'field3': 'wrong!'}
+    res = fs.validate('create', payload)
 
     assert res == {'field1': 1, 'field2': 2}
     f1.validate.assert_called_with('1')

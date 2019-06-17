@@ -76,7 +76,10 @@ class FieldSet(object):
                 continue
             cleaned_data[name] = self.fields[name].validate(value)
 
-        for req_field in self.get_required_field_names(method_name, cleaned_data):
+        required_field_names = self.get_required_field_names(
+            method_name, cleaned_data
+        )
+        for req_field in required_field_names:
             if req_field not in cleaned_data:
                 raise self.Error('Field "{}" is missing'.format(req_field))
 
@@ -279,8 +282,10 @@ class Email(String):
     Email implements field validation for emails
     '''
     error_message = '"%s" is not a valid email'
-    pattern = r'^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*' \
-        '(\.[a-z]{2,16})$'
+    pattern = (
+        r'^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*'
+        r'(\.[a-z]{2,16})$'
+    )
 
     def _validate_field(self, field_value):
         if not re.match(self.pattern, field_value, re.IGNORECASE):
