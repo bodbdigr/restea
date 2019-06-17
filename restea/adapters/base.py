@@ -51,7 +51,7 @@ class BaseResourceWrapper(object):
 
     def split_request_and_arguments(self, *args, **kwargs):
         '''
-        Hook to return the original request object and arguments
+        Hook to return the original request object and arguments.
 
         This method receives all arguments that the `wrap_request` method
         receives and return the first argument as the request object by
@@ -68,7 +68,9 @@ class BaseResourceWrapper(object):
         '''
         data_format, kwargs = self._get_format_name(kwargs)
         formatter = formats.get_formatter(data_format)
-        original_request, args, kwargs = self.split_request_and_arguments(*args, **kwargs)
+        original_request, args, kwargs = self.split_request_and_arguments(
+            *args, **kwargs
+        )
 
         if not self.request_wrapper_class:
             raise RuntimeError(
