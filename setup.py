@@ -7,7 +7,7 @@ with open("README.rst") as f:
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.3.8',
+    version='0.3.9',
     description='Simple RESTful server toolkit',
     long_description=readme_content,
     author='Walery Jadlowski',
