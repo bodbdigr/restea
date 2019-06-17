@@ -171,10 +171,12 @@ class Resource(object):
             )
         return getattr(type(self), method_name)
 
-    def _get_payload(self):
+    def _get_payload(self, method_name):
         '''
         Returns a validated and parsed payload data for request
 
+        :param method_name: name of the method
+        :type method_name: str
         :raises restea.errors.BadRequestError: unparseable data
         :raises restea.errors.BadRequestError: payload is not mappable
         :raises restea.errors.BadRequestError: validation of fields not passed
@@ -197,7 +199,7 @@ class Resource(object):
             )
 
         try:
-            return self.fields.validate(payload_data)
+            return self.fields.validate(method_name, payload_data)
         except fields.FieldSet.Error as e:
             raise errors.BadRequestError(str(e))
         except fields.FieldSet.ConfigurationError as e:
@@ -224,16 +226,13 @@ class Resource(object):
         if not self._is_valid_formatter:
             raise errors.BadRequestError('Not recognizable format')
 
-        self.payload = self._get_payload()
-
-        self.prepare()
-
         method_name = self._get_method_name(has_iden=bool(args or kwargs))
+        self.payload = self._get_payload(method_name)
         method = self._get_method(method_name)
         method = self._apply_decorators(method)
 
+        self.prepare()
         response = method(self, *args, **kwargs)
-
         response = self.finish(response)
 
         try:

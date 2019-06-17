@@ -205,7 +205,7 @@ def test_get_payload_should_pass_validation():
     resource.fields = mock.Mock()
     resource.fields.validate.return_value = expected_data
 
-    assert resource._get_payload() == expected_data
+    assert resource._get_payload('edit') == expected_data
 
 
 def test_get_payload_unexpected_data():
@@ -215,7 +215,7 @@ def test_get_payload_unexpected_data():
     formatter_mock.unserialize.side_effect = formats.LoadError()
 
     with pytest.raises(errors.BadRequestError) as e:
-        resource._get_payload()
+        resource._get_payload('edit')
     assert 'Fail to load the data' in str(e)
 
 
@@ -226,7 +226,7 @@ def test_get_payload_not_mapable_payload():
     formatter_mock.unserialize.return_value = ['item']
 
     with pytest.raises(errors.BadRequestError) as e:
-        resource._get_payload()
+        resource._get_payload('edit')
     assert 'Data should be key -> value structure' in str(e)
 
 
@@ -243,7 +243,7 @@ def test_get_payload_field_validation_fails():
     )
 
     with pytest.raises(errors.BadRequestError) as e:
-        resource._get_payload()
+        resource._get_payload('edit')
     assert field_error_message in str(e)
 
 
@@ -261,13 +261,13 @@ def test_get_payload_field_misconfigured_fields_fails():
     resource.fields.validate.side_effect = conf_error
 
     with pytest.raises(errors.ServerError) as e:
-        resource._get_payload()
+        resource._get_payload('edit')
     assert configuration_error_message in str(e)
 
 
 def test_get_payload_field_validation_no_data_empty_payload():
     resource, _, _ = create_resource_helper(method='POST')
-    assert {} == resource._get_payload()
+    assert {} == resource._get_payload('create')
 
 
 def test_get_payload_validation_no_fields_case_empty_payload():
@@ -275,7 +275,7 @@ def test_get_payload_validation_no_fields_case_empty_payload():
         method='PUT', data='data'
     )
     formatter_mock.unserialize.return_value = {'data': 'test'}
-    assert {} == resource._get_payload()
+    assert {} == resource._get_payload('edit')
 
 
 @patch.object(formats.JsonFormat, 'serialize')

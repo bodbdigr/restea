@@ -49,30 +49,30 @@ def test_field_set_required_fields():
     fs, f1, f2 = create_field_set_helper()
     f1.required = True
     f2.required = False
-    assert fs.get_required_field_names({}) == set(['field1'])
+    assert fs.get_required_field_names('create', {}) == set(['field1'])
 
 
 def test_field_set_required_fields_callable():
     fs, f1, f2 = create_field_set_helper()
 
-    def foo(data):
+    def foo(method_name, data):
         return data.get('field2') == 0
     f1.required = foo
     f2.required = False
-    assert fs.get_required_field_names({'field2': 0}) == set(['field1'])
-    assert fs.get_required_field_names({}) == set([])
+    assert fs.get_required_field_names('create', {'field2': 0}) == set(['field1'])
+    assert fs.get_required_field_names('create', {}) == set([])
 
-    f1.required = lambda data: data.get('field2') == 0
+    f1.required = lambda method_name, data: data.get('field2') == 0
     f2.required = False
-    assert fs.get_required_field_names({'field2': 0}) == set(['field1'])
-    assert fs.get_required_field_names({}) == set([])
+    assert fs.get_required_field_names('create', {'field2': 0}) == set(['field1'])
+    assert fs.get_required_field_names('create', {}) == set([])
 
 
 def test_field_set_validate():
     fs, f1, f2 = create_field_set_helper()
     f1.validate.return_value = 1
     f2.validate.return_value = 2
-    res = fs.validate({'field1': '1', 'field2': '2', 'field3': 'wrong!'})
+    res = fs.validate('create', {'field1': '1', 'field2': '2', 'field3': 'wrong!'})
 
     assert res == {'field1': 1, 'field2': 2}
     f1.validate.assert_called_with('1')
@@ -84,7 +84,7 @@ def test_feild_set_validate_requred_fields_missing():
     f1.requred = True
 
     with pytest.raises(FieldSet.Error) as e:
-        fs.validate({'field2': '2'})
+        fs.validate('create', {'field2': '2'})
     assert 'Field "field1" is missing' in str(e)
 
 

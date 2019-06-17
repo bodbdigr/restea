@@ -39,7 +39,7 @@ class FieldSet(object):
         '''
         return set(self.fields.keys())
 
-    def get_required_field_names(self, data):
+    def get_required_field_names(self, method_name, data):
         '''
         Returns only required field names
         :returns: required field names (from self.fields)
@@ -47,7 +47,7 @@ class FieldSet(object):
         '''
         def is_required_field(field, data):
             if callable(field.required):
-                return field.required(data)
+                return field.required(method_name, data)
             else:
                 return field.required
 
@@ -56,9 +56,11 @@ class FieldSet(object):
             if is_required_field(field, data)
         )
 
-    def validate(self, data):
+    def validate(self, method_name, data):
         '''
         Validates payload input
+        :param method_name: name of the method
+        :type method_name: str
         :param data: input playload data to be validated
         :type data: dict
         :raises restea.fields.FieldSet.Error: field validation failed
@@ -74,7 +76,7 @@ class FieldSet(object):
                 continue
             cleaned_data[name] = self.fields[name].validate(value)
 
-        for req_field in self.get_required_field_names(cleaned_data):
+        for req_field in self.get_required_field_names(method_name, cleaned_data):
             if req_field not in cleaned_data:
                 raise self.Error('Field "{}" is missing'.format(req_field))
 
