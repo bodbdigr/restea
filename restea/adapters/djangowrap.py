@@ -65,7 +65,7 @@ class DjangoResourceRouter(BaseResourceWrapper):
             response[name] = value
         return response
 
-    def get_routes(self, path='', iden_format=r'(?P<iden>\w+)'):
+    def get_routes(self, path='', iden_format='(?P<iden>\w+)'):
         '''
         Prepare routes for the given REST resource
 
