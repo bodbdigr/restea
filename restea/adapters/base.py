@@ -49,23 +49,23 @@ class BaseResourceWrapper(object):
         '''
         raise NotImplementedError
 
-    def get_original_request(self, *args, **kwargs):
+    def get_original_request(self, request, *args, **kwargs):
         '''
         Returns the original request object.
 
         This method receives all arguments that the `wrap_request` method
         receives and return the first argument as is commonly received.
         '''
-        return args[0]
+        return request
 
-    def wrap_request(self, *args, **kwargs):
+    def wrap_request(self, request, *args, **kwargs):
         '''
         Prepares data and pass control to `restea.Resource` object
         :returns: Response object for corresponding framework
         '''
         data_format, kwargs = self._get_format_name(kwargs)
         formatter = formats.get_formatter(data_format)
-        original_request = self.get_original_request(*args, **kwargs)
+        original_request = self.get_original_request(request, *args, **kwargs)
 
         if not self.request_wrapper_class:
             raise RuntimeError(

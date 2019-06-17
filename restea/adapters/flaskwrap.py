@@ -62,7 +62,7 @@ class FlaskResourceWrapper(BaseResourceWrapper):
         '''
         return flask.current_app
 
-    def get_original_request(self, *args, **kwargs):
+    def get_original_request(self, request, *args, **kwargs):
         return flask.request
 
     def prepare_response(self, content, status_code, content_type, headers):
