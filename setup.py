@@ -7,7 +7,7 @@ with open("README.rst") as f:
 setup(
     name='restea',
     packages=['restea', 'restea.adapters'],
-    version='0.3.9',
+    version='0.3.10',
     description='Simple RESTful server toolkit',
     long_description=readme_content,
     author='Walery Jadlowski',
@@ -18,10 +18,10 @@ setup(
         'future==0.16.0',
     ],
     tests_require=[
-        'pytest',
-        'pytest-cov',
-        'pytest-mock',
-        'pytest-runner',
+        'pytest==4.6.11',
+        'pytest-cov==2.12.0',
+        'pytest-mock==2.0.0',
+        'mock==3.0.5',
     ],
     license='MIT',
     classifiers=[

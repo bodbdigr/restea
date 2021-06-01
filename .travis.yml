@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "pypy"
 before_install:
-  - pip install --upgrade flake8 pytest coveralls
+  - pip install --upgrade flake8==3.9.2 pytest==4.6.11 pytest-runner==5.2 coveralls==1.10.0
   - flake8 .
 install:
   - pip install .
