@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from restea.adapters.base import (
     BaseResourceWrapper,
@@ -73,8 +73,7 @@ class DjangoResourceRouter(BaseResourceWrapper):
         :param iden: string -- format for identifier, for instance might be
         used to make composite identifier
         '''
-        return patterns(
-            '',
+        return (
             url(
                 r'^{}(?:\.(?P<data_format>\w+))?$'.format(path),
                 self.wrap_request
