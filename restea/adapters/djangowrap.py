@@ -1,3 +1,5 @@
+import six
+
 from django.http import HttpResponse
 from django.conf.urls import url
 
@@ -61,7 +63,7 @@ class DjangoResourceRouter(BaseResourceWrapper):
             content_type=content_type,
             status=status_code
         )
-        for name, value in headers.iteritems():
+        for name, value in six.iteritems(headers):
             response[name] = value
         return response
 
