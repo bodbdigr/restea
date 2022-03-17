@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 
+import six
+from six.moves import map, range
+
 import mock
 import pytest
 import datetime
@@ -446,8 +449,8 @@ def test_comma_separated_list_does_not_allow_more_requests():
     )
     field.set_name('foo')
 
-    value_list = range(0, limit_per_request + 1)
-    string_list = field.separator.join(map(str, value_list))
+    value_list = list(range(0, limit_per_request + 1))
+    string_list = field.separator.join(list(map(str, value_list)))
 
     with pytest.raises(FieldSet.Error) as e:
         field.validate(string_list)

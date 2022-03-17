@@ -1,3 +1,5 @@
+import six
+
 import flask
 
 from restea.adapters.base import (
@@ -71,7 +73,7 @@ class FlaskResourceWrapper(BaseResourceWrapper):
             mimetype=content_type,
             status=status_code
         )
-        for name, value in headers.iteritems():
+        for name, value in six.iteritems(headers):
             response.headers[name] = value
         return response
 
