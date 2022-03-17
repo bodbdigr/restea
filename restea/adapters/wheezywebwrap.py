@@ -1,3 +1,5 @@
+import six
+
 from wheezy.http import HTTPResponse
 from wheezy.routing import url
 from wheezy.http.comp import bton
@@ -74,7 +76,7 @@ class WheezyResourceRouter(BaseResourceWrapper):
         response = HTTPResponse(content_type=content_type)
         response.write(content)
         response.status_code = status_code
-        for name, value in headers.iteritems():
+        for name, value in six.iteritems(headers):
             response.headers.append((name, value))
         return response
 
