@@ -104,7 +104,7 @@ class JsonFormat(BaseFormatter):
         :rtype: str
         '''
         try:
-            return json.dumps(data, cls=DateTimeEncoder)
+            return json.dumps(data, cls=DateTimeEncoder, sort_keys=True)
         except ValueError:
             raise LoadError
 
