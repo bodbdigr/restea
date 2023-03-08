@@ -6,4 +6,5 @@ MANIFEST
 dist
 .cache
 .eggs/*
+build/*
 restea.egg-info/*

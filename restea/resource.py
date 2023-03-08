@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import collections
 
+import six
+
 import restea.errors as errors
 import restea.formats as formats
 import restea.fields as fields
@@ -19,6 +21,7 @@ class Resource(object):
         'post': 'create',
         'put': 'edit',
         'delete': 'delete',
+        'options': 'describe',
     }
 
     def __init__(self, request, formatter):
@@ -45,7 +48,7 @@ class Resource(object):
         :returns: boolean value of whatever iden is needed or not
         :rtype: bool
         '''
-        return method_name not in ('list', 'create')
+        return method_name not in ('list', 'create', 'describe')
 
     def _match_response_to_fields(self, dct):
         '''
@@ -104,9 +107,10 @@ class Resource(object):
             'HTTP_X_HTTP_METHOD_OVERRIDE',
             method
         )
-        method_name = self.method_map.get(method.lower())
 
-        if not method_name:
+        try:
+            method_name = self.method_map[method.lower()]
+        except KeyError:
             raise errors.MethodNotAllowedError(
                 'Method "{}" is not supported'.format(self.request.method)
             )
@@ -231,6 +235,8 @@ class Resource(object):
         method = self._get_method(method_name)
         method = self._apply_decorators(method)
 
+        if method_name == 'describe':
+            self._add_available_methods_to_response_headers()
         self.prepare()
         response = method(self, *args, **kwargs)
         response = self.finish(response)
@@ -242,11 +248,10 @@ class Resource(object):
 
     def dispatch(self, *args, **kwargs):
         '''
-        Dispatches the request and handles exception to return data, status
-        and content type
-
-        :returns: 4-element tuple: result, HTTP status code, content type, and
+        Dispatches the request and handles exception to return data, status, content type, and
         headers
+
+        :returns: 4-element tuple: result, HTTP status code, content type, and headers
         :rtype: tuple
         '''
         try:
@@ -266,6 +271,22 @@ class Resource(object):
                 self._error_formatter.content_type,
                 self._response_headers
             )
+
+    def _add_available_methods_to_response_headers(self):
+        methods_available = []
+        for http_method, method_name in self._stream_http_method_and_restea_method():
+            if hasattr(self, method_name):
+                methods_available.append(http_method.upper())
+        self.set_header('Allow', ','.join(set(methods_available)))
+
+    @classmethod
+    def _stream_http_method_and_restea_method(cls):
+        for http_method, method_names in six.iteritems(cls.method_map):
+            if isinstance(method_names, tuple):
+                for method_name in method_names:
+                    yield http_method, method_name
+            else:
+                yield http_method, method_names
 
     def set_header(self, name, value):
         '''

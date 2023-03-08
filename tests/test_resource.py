@@ -73,6 +73,11 @@ def test_get_method_name_delete():
     assert 'delete' == resource._get_method_name(has_iden=True)
 
 
+def test_get_method_name_options():
+    resource, _, _ = create_resource_helper(method='OPTIONS')
+    assert 'describe' == resource._get_method_name(has_iden=True)
+
+
 def test_get_method_name_unpecefied_method():
     resource, _, _ = create_resource_helper(method='HEAD')
 
@@ -98,6 +103,7 @@ def test_iden_required_negative():
     resource, _, _ = create_resource_helper()
     assert resource._iden_required('create') is False
     assert resource._iden_required('list') is False
+    assert resource._iden_required('describe') is False
 
 
 def test_match_response_to_fields():
