@@ -18,7 +18,7 @@ setup(
         'six==1.16.0',
     ],
     tests_require=[
-        'pytest==4.6.11',
+        'pytest==9.0.3',
         'pytest-cov==2.12.0',
         'pytest-mock==2.0.0',
         'mock==3.0.5',
